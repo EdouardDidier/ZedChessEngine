@@ -1,0 +1,53 @@
+#pragma once
+
+#include <iostream>
+
+#include "Move.h"
+
+#include "Fen.h"
+#include "Coord.h"
+
+using namespace std;
+
+class Board
+{
+public:
+	int* pSquares;
+
+	bool whiteToMove;		
+	int colourToMove;
+	int opponentColour;
+	int colourToMoveIndex;
+
+	// Bits 0-3 store white and black kingside/queenside castling legality
+	// Bits 4-7 store file of ep square (starting at 1, so 0 = no ep square)
+	// Bits 8-13 captured piece
+	// Bits 14-... fifty mover counter
+	Uint32 currentGameState;
+
+	//TODO: Ajouter Castels rights / En passant rights
+
+	int moveCount; // Total full move played in game
+	int fiftyMoveCounter; // Number of halfmove last pawn move or capture
+
+	const Uint16 whiteCastleKingSideMask = 0b1111111111111110;
+	const Uint16 whiteCastleQueenSideMask = 0b1111111111111101;
+	const Uint16 blackCastleKingSideMask = 0b1111111111111011;
+	const Uint16 blackCastleQueenSideMask = 0b1111111111110111;
+
+	const Uint16 whiteCastleMask = whiteCastleKingSideMask & whiteCastleQueenSideMask;
+	const Uint16 blackCastleMask = blackCastleKingSideMask & blackCastleQueenSideMask;
+
+	Board();
+	~Board();
+
+	void makeMove(Move move);
+	void undoMove();
+
+	int getPiece(int index);
+	int getPiece(int fileIndex, int rankIndex);
+	int getPiece(Coord coord);
+
+	void loadStartPosition();
+	void loadPosition(string fen);
+};
