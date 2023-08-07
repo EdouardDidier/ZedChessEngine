@@ -87,7 +87,8 @@ void Game::run()
 		}
 
 		// Draw te pieces on the board
-		mGraphic.drawPieces(mpBoard->pSquares, mDraggedPiece, &mAnimations);
+		int promotionMove = mPromotionMove.isInvalid() ? -1 : mPromotionMove.getStartSquare();
+		mGraphic.drawPieces(mpBoard->pSquares, &mAnimations, mDraggedPiece, promotionMove);
 
 		if (mDraggedPiece > -1) {
 			if (mHoverSquare.isInBoard()) {
@@ -105,20 +106,28 @@ void Game::run()
 		if (mDebugMode)
 			mGraphic.drawSquareIndex();
 
+		// Draw promotion menu
+		if (!mPromotionMove.isInvalid()) {
+			mGraphic.drawPromotionMenu(mPromotionMove.getTargetSquare());
+		}
+
+		if (mIsGameOver)
+			mGraphic.drawGameOver(!mpBoard->whiteToMove);
+
 		// Update the screen
 		mGraphic.update();
 
 		// Handle IA play
-		if (true || mpBoard->colourToMove == Piece::black) {
+		if (true && mpBoard->colourToMove == Piece::black && !mIsGameOver) {
 			delay += (Uint64)elapsed;
 			if (delay > 1000) {
 				delay = 0;
-				this->iaPlay();
+				iaPlay();
 			}
 		}
 
 		// Handle events on queue. Return True if quit flag activated
-		quit = this->handleUserEvents();
+		quit = handleUserEvents();
 	}
 }
 
@@ -126,7 +135,7 @@ bool Game::handleUserEvents() {
 	SDL_Event e;
 
 	// Get Mouse state
-	int x, y;
+	int x = 0, y = 0;
 	Uint32 pMouseState = SDL_GetMouseState(&x, &y);
 
 	// Get keyboard state
@@ -134,46 +143,69 @@ bool Game::handleUserEvents() {
 
 	// Loop through events in queue
 	while (SDL_PollEvent(&e) != 0) {
-		switch (e.type) {
-		case SDL_QUIT:
+		if (handleGeneralEvents(e, x, y))
 			return true;
-		case SDL_MOUSEMOTION:
-		{
-			Coord selectedSquare = this->getBoardCoord(y, x);
-			mHoverSquare = Coord(selectedSquare);
 
+		if (mPromotionMove.isInvalid())
+			handleGameEvents(e, pMouseState, pKeyboardState, x, y);
+		else
+			handlePromotionMenuEvents(e, x, y);
+	}
+
+	return false;
+}
+
+bool Game::handleGeneralEvents(SDL_Event e, int x, int y) {
+
+	switch (e.type) {
+	case SDL_QUIT:
+		return true;
+	case SDL_MOUSEMOTION:
+		mHoverSquare = Coord(getBoardCoord(y, x));
+		break;
+	case SDL_KEYDOWN:
+		switch (e.key.keysym.sym) {
+		case SDLK_d:
+			mDebugMode = !mDebugMode;
 			break;
 		}
-		case SDL_KEYDOWN:
-			switch (e.key.keysym.sym)
-			{
-			case SDLK_r:
-				unSelectSquare(); 
-				clearHighlightSquares(0);
+	}
 
-				mpBoard->loadStartPosition(); //TODO: create resest fonction
-				mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
-				break;
-			case SDLK_d:
-				mDebugMode = !mDebugMode;
-				break;
-			}
-			break;
-		case SDL_MOUSEBUTTONDOWN:
+	return false;
+}
+
+void Game::handleGameEvents(SDL_Event e, Uint32 pMouseState, const Uint8 *pKeyboardState, int x, int y) {
+	switch (e.type) {
+	case SDL_KEYDOWN:
+		switch (e.key.keysym.sym)
 		{
-			switch (e.button.button) {
-			case SDL_BUTTON_LEFT:
-			{
-				// Clear all hightlighted squares
-				if (mHoverSquare.isInBoard())
-					clearHighlightSquares();
+		case SDLK_r:
+			mPromotionMove = Move(0);
 
-				Move move = Move(mSelectedSquare, mHoverSquare.getIndex());
+			unSelectSquare();
+			clearHighlightSquares(0);
 
-				if (tryMove(move, true)) {
-					unSelectSquare();
-				}
-				else if (mpBoard->getPiece(mHoverSquare) > 0) {								// If selecting another piece, start dragging it
+			mIsGameOver = false;
+
+			mpBoard->loadStartPosition(); //TODO: create resest fonction
+			mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
+			break;
+		}
+	case SDL_MOUSEBUTTONDOWN:
+		switch (e.button.button) {
+		case SDL_BUTTON_LEFT:
+		{
+			// Clear all hightlighted squares
+			if (mHoverSquare.isInBoard())
+				clearHighlightSquares();
+
+			Move move = Move(mSelectedSquare, mHoverSquare.getIndex());
+
+			if (tryMove(move, true)) {
+				unSelectSquare();
+			}
+			else if (mPromotionMove.isInvalid()) {
+				if (mpBoard->getPiece(mHoverSquare) > 0) {									// If selecting another piece, start dragging it
 					if (mSelectedSquare == mHoverSquare.getIndex()) mToUnselectFlag = true; // Flag it able to be unselected
 
 					selectSquare(mHoverSquare.getIndex());
@@ -182,56 +214,99 @@ bool Game::handleUserEvents() {
 				else {
 					unSelectSquare(1);
 				}
-
-				break;
 			}
-			case SDL_BUTTON_RIGHT:
-				unSelectSquare(1);					
-				break;
+
+			break;
+		}
+		case SDL_BUTTON_RIGHT:
+			unSelectSquare(1);
+			break;
+		}
+		break;
+	case SDL_MOUSEBUTTONUP:
+		switch (e.button.button) {
+		case SDL_BUTTON_LEFT:
+		{
+			Move move = Move(mSelectedSquare, mHoverSquare.getIndex());
+
+			// If a piece is being dragged, attempt to move
+			if (mHoverSquare.getIndex() == mSelectedSquare && mToUnselectFlag) {
+				unSelectSquare();
+			}
+			else if (isInPossibleMove(move)) {
+				if (tryMove(move)) {
+					unSelectSquare();
+				}
+			}
+
+			mDraggedPiece = -1; // Reset dragged index
+
+			break;
+		}
+		case SDL_BUTTON_RIGHT:
+			if (!(pMouseState & SDL_BUTTON(1))) {	// Selected square only if left mouse button isn't pressed
+				if (mHoverSquare.isInBoard())
+				{
+					// Adding highlight squares to correct vector depending on pressed keys
+					if (pKeyboardState[SDL_SCANCODE_LCTRL] || pKeyboardState[SDL_SCANCODE_RCTRL])
+						addHighlightSquare(mHoverSquare.getIndex(), 3);
+					else if (pKeyboardState[SDL_SCANCODE_LSHIFT] || pKeyboardState[SDL_SCANCODE_RSHIFT])
+						addHighlightSquare(mHoverSquare.getIndex(), 4);
+					else if (pKeyboardState[SDL_SCANCODE_LALT] || pKeyboardState[SDL_SCANCODE_RALT])
+						addHighlightSquare(mHoverSquare.getIndex(), 5);
+					else
+						addHighlightSquare(mHoverSquare.getIndex(), 2);
+				}
 			}
 			break;
 		}
-		case SDL_MOUSEBUTTONUP:
-			switch (e.button.button) {
-			case SDL_BUTTON_LEFT:
-			{
-				Move move = Move(mSelectedSquare, mHoverSquare.getIndex());
+		break;
+	}
+}
 
-				// If a piece is being dragged, attempt to move
-				if (mHoverSquare.getIndex() == mSelectedSquare && mToUnselectFlag) {
-					unSelectSquare();
-				}
-				else if (isInPossibleMove(move)) {
-					this->tryMove(move);
-					unSelectSquare();
-				}
+void Game::handlePromotionMenuEvents(SDL_Event e, int x, int y) {
+	switch (e.type) {
+	case SDL_MOUSEBUTTONDOWN:
+		switch (e.button.button) {
+		case SDL_BUTTON_LEFT:
 
-				mDraggedPiece = -1; // Reset dragged index
+			Coord hoverSquare = getBoardCoord(y, x);
 
-				break;
-			}
-			case SDL_BUTTON_RIGHT:
-				if (!(pMouseState & SDL_BUTTON(1))) {	// Selected square only if left mouse button isn't pressed
-					if (mHoverSquare.isInBoard())
-					{
-						// Adding highlight squares to correct vector depending on pressed keys
-						if (pKeyboardState[SDL_SCANCODE_LCTRL] || pKeyboardState[SDL_SCANCODE_RCTRL])
-							this->addHighlightSquare(mHoverSquare.getIndex(), 3);
-						else if (pKeyboardState[SDL_SCANCODE_LSHIFT] || pKeyboardState[SDL_SCANCODE_RSHIFT])
-							this->addHighlightSquare(mHoverSquare.getIndex(), 4);
-						else if (pKeyboardState[SDL_SCANCODE_LALT] || pKeyboardState[SDL_SCANCODE_RALT])
-							this->addHighlightSquare(mHoverSquare.getIndex(), 5);
-						else
-							this->addHighlightSquare(mHoverSquare.getIndex(), 2);
+			if (hoverSquare.isInBoard()) {
+				Coord squareToPromote = Coord(mPromotionMove.getTargetSquare());
+
+				if (hoverSquare.getFile() == squareToPromote.getFile()) {
+					int selection = squareToPromote.getRank() - hoverSquare.getRank();
+					int coulour = Piece::white;
+					int flag = Move::Flag::promoteToQueen;
+
+					if (squareToPromote.getRank() == 0) {
+						coulour = Piece::black;
+						selection = -selection;
 					}
+
+					switch(selection) {
+					case 1:
+						flag = Move::Flag::promoteToRook;
+						break;
+					case 2:
+						flag = Move::Flag::promoteToBishop;
+						break;
+					case 3:
+						flag = Move::Flag::promoteToKnight;
+						break;
+					}
+
+					makeMove(Move(mPromotionMove.moveValue | (flag << 12)));
+					unSelectSquare();
 				}
-				break;
 			}
+
+			mPromotionMove = Move(0);
+
 			break;
 		}
 	}
-
-	return false;
 }
 
 void Game::selectSquare(int square) {
@@ -275,7 +350,7 @@ void Game::unSelectSquare(int type) {
 	mDraggedPiece = -1;			// Reset dragged index
 	mToUnselectFlag = false;	// Reset Flag
 
-	this->clearHighlightSquares(type);	// Clear selected square
+	clearHighlightSquares(type);	// Clear selected square
 }
 
 bool Game::isInPossibleMove(Move move) {
@@ -289,10 +364,20 @@ bool Game::isInPossibleMove(Move move) {
 bool Game::tryMove(Move move, bool isAnimated) {
 	for (Move legal : mPossibleMoves) {
 		if (Move::isSameMoveNoFlag(move, legal)) {
-			if (isAnimated)
-				this->makeAnimatedMove(legal);
+			// Check if is promotion, then open promotion menu
+			if (legal.isPromotion()) {
+				if (isAnimated)
+					mAnimations.push_back(Animation(&mGraphic, Move(move.moveValue), mpBoard->getPiece(move.getStartSquare()), 0));	// Starting animation
+
+				mPromotionMove = Move(move.moveValue);
+				selectSquare(move.getStartSquare());
+
+				return false;
+			}
+			else if (isAnimated)
+				makeAnimatedMove(legal);
 			else
-				this->makeMove(legal);
+				makeMove(legal);
 			return true;
 		}
 	}
@@ -312,12 +397,16 @@ bool Game::makeMove(Move move) {
 		mAnimations.push_front(Animation(&mGraphic, Move(rookMove.moveValue), mpBoard->getPiece(rookMove.getStartSquare()), Piece::none));	// Starting animation
 	}
 
-	this->playSound(move);
+	playSound(move);
 
 	mpBoard->makeMove(move);
 
 	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
-	this->selectSquare(mSelectedSquare);
+
+	if (mLegalMoves.empty())
+		gameOver();
+
+	selectSquare(mSelectedSquare);
 
 	return true;
 }
@@ -326,7 +415,7 @@ bool Game::makeAnimatedMove(Move move) {
 	int animatedPiece = mpBoard->getPiece(move.getStartSquare());
 	int targetPiece = mpBoard->getPiece(move.getTargetSquare());
 
-	this->makeMove(move);
+	makeMove(move);
 
 	mAnimations.push_back(Animation(&mGraphic, Move(move.moveValue), animatedPiece, targetPiece));	// Starting animation
 
@@ -339,7 +428,7 @@ bool Game::iaPlay() {
 
 	for (Move move : mLegalMoves) {
 		if (chosenMove == i) {
-			this->makeAnimatedMove(move);
+			makeAnimatedMove(move);
 			return true;
 		}
 		
@@ -347,6 +436,10 @@ bool Game::iaPlay() {
 	}
 
 	return false;
+}
+
+void Game::gameOver() {
+	mIsGameOver = true;
 }
 
 Coord Game::getBoardCoord(int y, int x)
@@ -407,10 +500,11 @@ void Game::clearHighlightSquares(int type) {
 }
 
 void Game::playSound(Move move) {
-	if ((Piece::pieceType(mpBoard->getPiece(move.getTargetSquare())) != Piece::none)
-		|| move.isEnPassant()) {
+	if (move.isPromotion()) 
+		mAudio.playSound(Audio::promote);
+	else if ((Piece::pieceType(mpBoard->getPiece(move.getTargetSquare())) != Piece::none)
+		|| move.isEnPassant())
 		mAudio.playSound(Audio::capture);
-	}
 	else if (move.isCastle())
 		mAudio.playSound(Audio::castle);
 	else

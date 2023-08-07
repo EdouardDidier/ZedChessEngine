@@ -215,7 +215,7 @@ void Graphic::drawHoverSquare(Coord coord) {
 	SDL_RenderFillRect(mpRenderer, &dest);
 }
 
-void Graphic::drawPieces(int *squares, int draggedPiece, list<Animation> *animations) {
+void Graphic::drawPieces(int *squares, list<Animation> *animations, int draggedPiece, int pieceToPromote) {
 	for (int y = 0; y < 8; y++)
 	{
 		for (int x = 0; x < 8; x++)
@@ -227,7 +227,7 @@ void Graphic::drawPieces(int *squares, int draggedPiece, list<Animation> *animat
 				bool toDraw = true;
 				int offset = 0;
 
-				if (index == draggedPiece)
+				if (index == draggedPiece || index == pieceToPromote)
 					toDraw = false;
 
 				for (Animation a : *animations) {
@@ -263,6 +263,11 @@ void Graphic::drawPiece(int piece, Coord coord) {
 	this->drawPiece(piece, (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 4)* SQUARE_SIZE + WINDOW_HEIGHT / 2);
 }
 
+void Graphic::drawGameOver(bool whiteWin) {
+	string str = whiteWin ? "White wins !" : "Black wins !";
+	drawText(str, 10, 10, 0);
+}
+
 void Graphic::drawText(string str, int x, int y, int color) {
 	if (color < 0 || color > PALETTE_TEXT_SIZE - 1) color = 0; // Set default color if color not in palette range
 	
@@ -276,6 +281,38 @@ void Graphic::drawText(string str, int x, int y, int color) {
 
 		x += w;
 	}
+}
+
+void Graphic::drawPromotionMenu(int squareToPromote) {
+	SDL_Rect dest;
+
+	int x = squareToPromote % 8;
+	int y = squareToPromote / 8;
+
+	if (y != 0 && y != 7)
+		return;
+
+	int colour = (y == 7) ? Piece::white : Piece::black;
+	int yOffset = (y == 7) ? 0 : -3 * SQUARE_SIZE;
+	int yOffsetFactor = (y == 7) ? -1 : 1;
+
+	dest = { (x - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - y - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2 + yOffset, SQUARE_SIZE, SQUARE_SIZE * 4 };
+
+	SDL_SetRenderDrawColor(mpRenderer, 0, 0, 0, 255);
+	SDL_RenderFillRect(mpRenderer, &dest);
+
+	dest.x += 1;
+	dest.y += 1;
+	dest.w -= 2;
+	dest.h -= 2;
+
+	SDL_SetRenderDrawColor(mpRenderer, 255, 255, 255, 255);
+	SDL_RenderFillRect(mpRenderer, &dest);
+
+	drawPiece(Piece::queen | colour, Coord(y, x));
+	drawPiece(Piece::rook | colour, Coord(y + yOffsetFactor * 1, x));
+	drawPiece(Piece::bishop | colour, Coord(y + yOffsetFactor * 2, x));
+	drawPiece(Piece::knight | colour, Coord(y + yOffsetFactor * 3, x));
 }
 
 void Graphic::update() {

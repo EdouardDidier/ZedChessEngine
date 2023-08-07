@@ -52,13 +52,17 @@ public:
 	void drawHighlightSquares(vector<int>* highlightSquares);
 	void drawHints(list<Move> moves, int* squares);
 	void drawHoverSquare(Coord coord);
-	void drawPieces(int* squares, int draggedPiece, list<Animation> *animations);
+	void drawPieces(int* squares, list<Animation> *animations, int draggedPiece, int pieceToPromote);
 
 	void drawPieceAtMouse(int draggedPiece);
 	void drawPiece(int piece, int x, int y);
 	void drawPiece(int piece, Coord coord);
 
+	void drawGameOver(bool whiteWin);
+
 	void drawText(string str, int x, int y, int color = 0);
+
+	void drawPromotionMenu(int squareToPromote);
 
 	void update();
 

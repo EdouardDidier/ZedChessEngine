@@ -70,7 +70,6 @@ bool Move::isSameMoveNoFlag(Move a, Move b) {
 	return (a.moveValue & Move::noFlagMask) == (b.moveValue & Move::noFlagMask);
 }
 
-
 Move Move::invalidMove() {
 	return Move(0);
 }

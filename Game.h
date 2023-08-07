@@ -31,6 +31,9 @@ public:
 
 	void run();
 	bool handleUserEvents();
+	bool handleGeneralEvents(SDL_Event e, int x, int y);
+	void handleGameEvents(SDL_Event e, Uint32 pMouseState, const Uint8 *pKeyboardState, int x, int y);
+	void handlePromotionMenuEvents(SDL_Event e, int x, int y);
 
 	void selectSquare(int startSquare);
 	void unSelectSquare(int typeHighlight = -1);
@@ -42,6 +45,8 @@ public:
 	bool makeAnimatedMove(Move move);
 
 	bool iaPlay();
+
+	void gameOver();
 
 	Coord getBoardCoord(int y, int x);
 
@@ -79,7 +84,9 @@ private:
 	Coord mHoverSquare = Coord();
 
 	list<Animation> mAnimations;
-	int mAnimationTargetSquare = -1;
-	int mAnimationTargetPiece = -1;
+
+	Move mPromotionMove = Move(0);
+
+	bool mIsGameOver = false;
 };
 
