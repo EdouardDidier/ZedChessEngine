@@ -19,10 +19,6 @@ Animation::Animation(Graphic *pGraphic, Move move, int piece, int targetPiece) {
 	mProgress = 0;
 }
 
-void Animation::startAnimation(Move move, int piece) {
-
-}
-
 bool Animation::animate(float elapsed) {
 	if (mPiece == -1) return true;
 

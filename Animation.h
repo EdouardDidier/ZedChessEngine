@@ -16,7 +16,6 @@ class Animation
 public:
 	Animation(Graphic *pGraphic, Move move, int piece, int targetPiece);
 
-	void startAnimation(Move move, int piece);
 	bool animate(float elapsed);
 
 	Move getMove();
