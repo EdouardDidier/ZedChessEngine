@@ -31,6 +31,7 @@
 #include "Coord.h"
 
 #include "Piece.h"
+#include "PieceList.h"
 #include "Move.h"
 
 using namespace std;
@@ -60,6 +61,7 @@ public:
 
 	void drawGameOver(bool whiteWin);
 
+	void drawSquare(SDL_Rect dest, SDL_Colour colour);
 	void drawText(string str, int x, int y, int color = 0);
 
 	void drawPromotionMenu(int squareToPromote);
@@ -70,7 +72,9 @@ public:
 	bool loadFont();
 
 	// Info / Debug functions
-	void drawSquareIndex();
+	void debugDrawSquareIndex();
+	void debugDrawOccupiedSquares(PieceList **pieceList);
+	void debugDrawOccupiedSquares(int* occupiedList);
 
 private:
 	static map<int, int> mPieceToGraphic;

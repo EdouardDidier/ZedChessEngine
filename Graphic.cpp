@@ -110,24 +110,12 @@ void Graphic::drawBackground() {
 }
 
 void Graphic::drawBoard() {
-	SDL_Rect dest;
-
 	for (int y = 0; y < 8; y++) {
 		for (int x = 0; x < 8; x++) {
-
-			// Defining color of square
-			if ((y + x) % 2) {
-				SDL_SetRenderDrawColor(mpRenderer, Palette::dark.r, Palette::dark.g, Palette::dark.b, Palette::dark.a);
-			}
-			else {
-				SDL_SetRenderDrawColor(mpRenderer, Palette::light.r, Palette::light.g, Palette::light.b, Palette::light.a);
-			}
-
-			// Compute square position based on coordinates and screen size
-			dest = { (x - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (y - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE };
-
-			// Adding square to window
-			SDL_RenderFillRect(mpRenderer, &dest);
+			drawSquare(
+				{ (x - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (y - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE }, 
+				((y + x) % 2) ? Palette::dark : Palette::light
+			);
 		}
 	}
 }
@@ -152,15 +140,7 @@ void Graphic::drawHighlightSquares(vector<int> *highlightSquares) { //TODO: Not 
 	for (int i = 0; i < PALETTE_HIGHLIGHT_SIZE; i++) {
 		for (int square : highlightSquares[i]) {
 			Coord coord = Coord(square);
-
-			// Defininf color of highlight
-			SDL_SetRenderDrawColor(mpRenderer, Palette::highlight[i].r, Palette::highlight[i].g, Palette::highlight[i].b, Palette::highlight[i].a);
-			
-			// Compute square position based on index
-			dest = { (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE };
-
-			// Adding square to window
-			SDL_RenderFillRect(mpRenderer, &dest);
+			drawSquare({ (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE }, Palette::highlight[i]);
 		}
 	}
 }
@@ -266,6 +246,14 @@ void Graphic::drawPiece(int piece, Coord coord) {
 void Graphic::drawGameOver(bool whiteWin) {
 	string str = whiteWin ? "White wins !" : "Black wins !";
 	drawText(str, 10, 10, 0);
+}
+
+void Graphic::drawSquare(SDL_Rect dest, SDL_Colour colour) {
+	// Setting the colour
+	SDL_SetRenderDrawColor(mpRenderer, colour.r, colour.g, colour.b, colour.a);
+
+	// Adding square to window
+	SDL_RenderFillRect(mpRenderer, &dest);
 }
 
 void Graphic::drawText(string str, int x, int y, int color) {
@@ -392,16 +380,32 @@ bool Graphic::loadFont() {
 	return true;
 }
 
-
-void Graphic::drawSquareIndex() {
-	int i = 0;
-
+void Graphic::debugDrawSquareIndex() {
 	for (int y = 0; y < 8; y++)
 	{
 		for (int x = 0; x < 8; x++)
 		{
-			this->drawText(to_string(i), (x - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2 + 6, (7 - y - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2 + 70, 3);
-			i++;
+			this->drawText(to_string(x + y * 8), (x - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2 + 6, (7 - y - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2 + 70, 3);
 		}
+	}
+}
+
+void Graphic::debugDrawOccupiedSquares(PieceList** pieceList) {
+	SDL_Rect dest;
+
+	for (int i = 0; i < 2; i++) {
+		for (int j = 0; j < pieceList[i]->count(); j++) {
+			Coord coord = Coord((*pieceList[i])[j]);
+			drawSquare({ (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE }, Palette::debug[i]);
+		}
+	}
+}
+
+void Graphic::debugDrawOccupiedSquares(int *occupiedList) {
+	SDL_Rect dest;
+
+	for (int i = 0; i < 2; i++) {
+		Coord coord = Coord(occupiedList[i]);
+		drawSquare({ (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE }, Palette::debug[i]);
 	}
 }

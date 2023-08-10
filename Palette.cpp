@@ -18,3 +18,7 @@ const SDL_Color Palette::highlight[PALETTE_HIGHLIGHT_SIZE] = {
 	{ 172, 206, 89, 204 },	// SHIFT
 	{ 82, 176, 220, 204 }	// ALT
 };
+const SDL_Color Palette::debug[PALETTE_DEBUG_SIZE] = {
+	{ 0, 125, 255, 204 },
+	{ 170, 0, 255, 204 }
+};

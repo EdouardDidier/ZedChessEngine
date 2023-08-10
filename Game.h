@@ -18,6 +18,8 @@
 #include "Move.h"
 #include "MoveGenerator.h"
 
+#include "DebugUtility.h"
+
 using namespace std;
 
 class Game
@@ -61,8 +63,8 @@ private:
 	Timer mTimer;
 	Graphic mGraphic;
 	Audio mAudio;
-		
-	// Highlight Arrays: 
+	
+	// Highlight Arrays:
 	// - 0: Last move
 	// - 1: Selected squares
 	// - 2: Color no key squares
@@ -88,5 +90,7 @@ private:
 	Move mPromotionMove = Move(0);
 
 	bool mIsGameOver = false;
+
+	int mDebugOccupiedSelector = 0;
 };
 

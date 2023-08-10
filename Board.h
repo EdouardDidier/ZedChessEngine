@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+
+#include "PieceList.h"
 #include "Move.h"
 
 #include "Fen.h"
@@ -12,12 +14,16 @@ using namespace std;
 class Board
 {
 public:
-	int* pSquares;
+	static const int whiteIndex = 0;
+	static const int blackIndex = 1;
+
+	int* squares;
 
 	bool whiteToMove;		
 	int colourToMove;
 	int opponentColour;
 	int colourToMoveIndex;
+	int opponentColourIndex;
 
 	// Bits 0-3 store white and black kingside/queenside castling legality
 	// Bits 4-7 store file of ep square (starting at 1, so 0 = no ep square)
@@ -25,10 +31,18 @@ public:
 	// Bits 14-... fifty mover counter
 	Uint32 currentGameState;
 
-	//TODO: Ajouter Castels rights / En passant rights
-
 	int moveCount; // Total full move played in game
 	int fiftyMoveCounter; // Number of halfmove last pawn move or capture
+
+	// Arrays to store king location
+	int *kings;
+
+	// List of piece to avoid looping through the board while generating moves
+	PieceList **queens;
+	PieceList **rooks;
+	PieceList **bishops;
+	PieceList **knights;
+	PieceList **pawns;
 
 	const Uint16 whiteCastleKingSideMask = 0b1111111111111110;
 	const Uint16 whiteCastleQueenSideMask = 0b1111111111111101;
@@ -48,6 +62,11 @@ public:
 	int getPiece(int fileIndex, int rankIndex);
 	int getPiece(Coord coord);
 
+	PieceList *getPieceList(int pieceType, int pieceColour);
+
 	void loadStartPosition();
 	void loadPosition(string fen);
+
+private:
+	PieceList **mAllPieceLists;
 };

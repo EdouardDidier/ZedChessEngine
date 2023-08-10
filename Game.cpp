@@ -15,7 +15,7 @@ Game::Game()
 
 Game::~Game()
 {
-
+	delete mpBoard;
 }
 
 bool Game::init()
@@ -83,12 +83,12 @@ void Game::run()
 
 		// Draw hints (legal moves)
 		if (mSelectedSquare > -1) {
-			mGraphic.drawHints(mPossibleMoves, mpBoard->pSquares);
+			mGraphic.drawHints(mPossibleMoves, mpBoard->squares);
 		}
 
 		// Draw te pieces on the board
 		int promotionMove = mPromotionMove.isInvalid() ? -1 : mPromotionMove.getStartSquare();
-		mGraphic.drawPieces(mpBoard->pSquares, &mAnimations, mDraggedPiece, promotionMove);
+		mGraphic.drawPieces(mpBoard->squares, &mAnimations, mDraggedPiece, promotionMove);
 
 		if (mDraggedPiece > -1) {
 			if (mHoverSquare.isInBoard()) {
@@ -102,9 +102,13 @@ void Game::run()
 			it->animate(elapsed);
 		}
 		
-		// Display additionnal information to debug
-		if (mDebugMode)
-			mGraphic.drawSquareIndex();
+		if (mDebugMode) {
+			if (mDebugOccupiedSelector == 1)
+				mGraphic.debugDrawOccupiedSquares(mpBoard->kings);
+			else if (mDebugOccupiedSelector > 1)
+				mGraphic.debugDrawOccupiedSquares(DebugUtility::getPieceListFromSelector(mpBoard, mDebugOccupiedSelector));
+			mGraphic.debugDrawSquareIndex();
+		}
 
 		// Draw promotion menu
 		if (!mPromotionMove.isInvalid()) {
@@ -165,8 +169,12 @@ bool Game::handleGeneralEvents(SDL_Event e, int x, int y) {
 		break;
 	case SDL_KEYDOWN:
 		switch (e.key.keysym.sym) {
-		case SDLK_d:
+		case SDLK_KP_0:
 			mDebugMode = !mDebugMode;
+			break;
+		case SDLK_KP_1:
+			mDebugOccupiedSelector++;
+			if (mDebugOccupiedSelector > 6) mDebugOccupiedSelector = 0;
 			break;
 		}
 	}
@@ -180,6 +188,10 @@ void Game::handleGameEvents(SDL_Event e, Uint32 pMouseState, const Uint8 *pKeybo
 		switch (e.key.keysym.sym)
 		{
 		case SDLK_r:
+			delete mpBoard;
+
+			mpBoard = new Board();
+
 			mPromotionMove = Move(0);
 
 			unSelectSquare();

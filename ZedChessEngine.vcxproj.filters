@@ -90,6 +90,12 @@
     <ClCompile Include="BoardRepresentation.cpp">
       <Filter>Fichiers sources\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="PieceList.cpp">
+      <Filter>Fichiers sources\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugUtility.cpp">
+      <Filter>Fichiers sources\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphic.h">
@@ -138,6 +144,12 @@
       <Filter>Fichiers d%27en-tête\Utility</Filter>
     </ClInclude>
     <ClInclude Include="BoardRepresentation.h">
+      <Filter>Fichiers d%27en-tête\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="PieceList.h">
+      <Filter>Fichiers d%27en-tête\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugUtility.h">
       <Filter>Fichiers d%27en-tête\Utility</Filter>
     </ClInclude>
   </ItemGroup>
