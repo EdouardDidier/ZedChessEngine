@@ -41,36 +41,36 @@ list<Move> MoveGenerator::generateLegalMove(Board* pBoard) {
 	return mMoves;
 }
 
+void MoveGenerator::generateAttackMoves() {
+
+}
+
 void MoveGenerator::generateKingMoves() {
-	for (int i = 0; i < 64; i++) {
-		int kingPiece = mpBoard->getPiece(i);
+	int startSquare = mpBoard->kings[friendlyColourIndex];
 
-		if (Piece::isColour(kingPiece, friendlyColour) && Piece::pieceType(kingPiece) == Piece::king) {
-			for (int targetSquare : mPrecomputedMoveData.kingMoves[i]) {
-				if (!Piece::isColour(mpBoard->getPiece(targetSquare), friendlyColour))
-					mMoves.push_back(Move(i, targetSquare));
+	for (int targetSquare : mPrecomputedMoveData.kingMoves[startSquare]) {
+		if (!Piece::isColour(mpBoard->getPiece(targetSquare), friendlyColour))
+			mMoves.push_back(Move(startSquare, targetSquare));
 
-				// Handle castle situations
-				if (Piece::pieceType(mpBoard->getPiece(targetSquare)) == Piece::none) {
-					// King side (5 = f1 / 61 = f8)
-					if ((targetSquare == 5 || targetSquare == 61) && this->hasKingSideCastleRight()) {
-						int castleSquare = targetSquare + 1;
+		// Handle castle situations
+		if (Piece::pieceType(mpBoard->getPiece(targetSquare)) == Piece::none) {
+			// King side (5 = f1 / 61 = f8)
+			if ((targetSquare == 5 || targetSquare == 61) && this->hasKingSideCastleRight()) {
+				int castleSquare = targetSquare + 1;
 
-						if (Piece::pieceType(mpBoard->getPiece(castleSquare)) == Piece::none) {
-							mMoves.push_back(Move(i, castleSquare, Move::Flag::castling));
-						}
+				if (Piece::pieceType(mpBoard->getPiece(castleSquare)) == Piece::none) {
+					mMoves.push_back(Move(startSquare, castleSquare, Move::Flag::castling));
+				}
 
-					}
+			}
 
-					// Queen side (3 = d1 / d59 = 8)
-					if ((targetSquare == 3 || targetSquare == 59) && this->hasQueenSideCastleRight()) {
-						int castleSquare = targetSquare - 1;
+			// Queen side (3 = d1 / d59 = 8)
+			if ((targetSquare == 3 || targetSquare == 59) && this->hasQueenSideCastleRight()) {
+				int castleSquare = targetSquare - 1;
 
-						if ((Piece::pieceType(mpBoard->getPiece(castleSquare)) == Piece::none)
-							&& (Piece::pieceType(mpBoard->getPiece(castleSquare - 1)) == Piece::none)) {
-							mMoves.push_back(Move(i, castleSquare, Move::Flag::castling));
-						}
-					}
+				if ((Piece::pieceType(mpBoard->getPiece(castleSquare)) == Piece::none)
+					&& (Piece::pieceType(mpBoard->getPiece(castleSquare - 1)) == Piece::none)) {
+					mMoves.push_back(Move(startSquare, castleSquare, Move::Flag::castling));
 				}
 			}
 		}
@@ -88,49 +88,49 @@ void MoveGenerator::generatePawnMove() {
 	if (epFile != -1) {
 		epSquare = 8 * ((mpBoard->whiteToMove) ? 5 : 2) + epFile;
 	}
+	
+	for (int i = 0 ; i < mpBoard->pawns[friendlyColourIndex]->count(); i++) {
+		int startSquare = (*mpBoard->pawns[friendlyColourIndex])[i];
 
-	for (int i = 0; i < 64; i++) {
-		if (Piece::pieceType(mpBoard->getPiece(i)) == Piece::pawn && Piece::isColour(mpBoard->getPiece(i), friendlyColour)) {
-			int squareForward = i + offset;
-			int pawnRank = i / 8;
-			bool oneRankToPromotion = pawnRank == finalRankBeforePromotion;
+		int squareForward = startSquare + offset;
+		int pawnRank = startSquare / 8;
+		bool oneRankToPromotion = pawnRank == finalRankBeforePromotion;
 
-			if (mpBoard->getPiece(squareForward) == Piece::none) {
-				if (oneRankToPromotion) {
-					makePromotionMoves(i, squareForward);
-				}
-				else {
-					mMoves.push_back(Move(i, squareForward)); 
+		if (mpBoard->getPiece(squareForward) == Piece::none) {
+			if (oneRankToPromotion) {
+				makePromotionMoves(startSquare, squareForward);
+			}
+			else {
+				mMoves.push_back(Move(startSquare, squareForward)); 
 					
-					if ((pawnRank) == startRank) {
-						int squareTwoForward = squareForward + offset;
+				if ((pawnRank) == startRank) {
+					int squareTwoForward = squareForward + offset;
 
-						if (mpBoard->getPiece(squareTwoForward) == Piece::none) {
-							mMoves.push_back(Move(i, squareTwoForward, Move::Flag::pawnTwoForward));
-						}
+					if (mpBoard->getPiece(squareTwoForward) == Piece::none) {
+						mMoves.push_back(Move(startSquare, squareTwoForward, Move::Flag::pawnTwoForward));
 					}
 				}
 			}
+		}
 
-			for (int j = 0; j < 2; j++) {
-				if (mPrecomputedMoveData.numSquaresToEdge[i][mPrecomputedMoveData.pawnAttackDirections[friendlyColourIndex][j]] > 0) {
-					int pawnCaptureDir = mPrecomputedMoveData.directionOffsets[mPrecomputedMoveData.pawnAttackDirections[friendlyColourIndex][j]];
-					int targetSquare = i + pawnCaptureDir;
-					int targetPiece = mpBoard->getPiece(targetSquare);
+		for (int j = 0; j < 2; j++) {
+			if (mPrecomputedMoveData.numSquaresToEdge[startSquare][mPrecomputedMoveData.pawnAttackDirections[friendlyColourIndex][j]] > 0) {
+				int pawnCaptureDir = mPrecomputedMoveData.directionOffsets[mPrecomputedMoveData.pawnAttackDirections[friendlyColourIndex][j]];
+				int targetSquare = startSquare + pawnCaptureDir;
+				int targetPiece = mpBoard->getPiece(targetSquare);
 
 
-					// Regular capture
-					if (Piece::isColour(targetPiece, opponentColour)) {
-						if (oneRankToPromotion)
-							makePromotionMoves(i, targetSquare);
-						else
-							mMoves.push_back(Move(i, targetSquare));
-					}
+				// Regular capture
+				if (Piece::isColour(targetPiece, opponentColour)) {
+					if (oneRankToPromotion)
+						makePromotionMoves(startSquare, targetSquare);
+					else
+						mMoves.push_back(Move(startSquare, targetSquare));
+				}
 
-					// Capture en-passant
-					if (targetSquare == epSquare) {
-						mMoves.push_back(Move(i, targetSquare, Move::Flag::enPassantCapture));
-					}
+				// Capture en-passant
+				if (targetSquare == epSquare) {
+					mMoves.push_back(Move(startSquare, targetSquare, Move::Flag::enPassantCapture));
 				}
 			}
 		}
@@ -138,29 +138,16 @@ void MoveGenerator::generatePawnMove() {
 }
 
 void MoveGenerator::generateSlidingMoves() {
-	for (int i = 0; i < 64; i++) {
-		int slidingpiece = mpBoard->getPiece(i);
+	for (int i = 0; i < mpBoard->queens[friendlyColourIndex]->count(); i++)
+		generateSlidingPieceMoves((*mpBoard->queens[friendlyColourIndex])[i], 0, 8);
 
-		if (Piece::isColour(slidingpiece, friendlyColour)) {
-			int startIndex = -1;
-			int endIndex = -1;
 
-			if (Piece::pieceType(slidingpiece) == Piece::rook) {
-				startIndex = 0;
-				endIndex = 4;
-			}
-			else if (Piece::pieceType(slidingpiece) == Piece::bishop) {
-				startIndex = 4;
-				endIndex = 8;
-			}
-			else if (Piece::pieceType(slidingpiece) == Piece::queen) {
-				startIndex = 0;
-				endIndex = 8;
-			}
+	for (int i = 0; i < mpBoard->rooks[friendlyColourIndex]->count(); i++)
+		generateSlidingPieceMoves((*mpBoard->rooks[friendlyColourIndex])[i], 0, 4);
 
-			if (endIndex > -1) generateSlidingPieceMoves(i, startIndex, endIndex);
-		}
-	}
+
+	for (int i = 0; i < mpBoard->bishops[friendlyColourIndex]->count(); i++)
+		generateSlidingPieceMoves((*mpBoard->bishops[friendlyColourIndex])[i], 4, 8);
 }
 
 void MoveGenerator::generateSlidingPieceMoves(int startSquare, int startIndex, int endIndex) {
@@ -182,14 +169,13 @@ void MoveGenerator::generateSlidingPieceMoves(int startSquare, int startIndex, i
 	}
 }
 
-
 void MoveGenerator::generateKnightMoves() {
-	for (int i = 0; i < 64; i++) {
-		if (Piece::pieceType(mpBoard->getPiece(i)) == Piece::knight && Piece::isColour(mpBoard->getPiece(i), friendlyColour)) {
-			for (int targetSquare : mPrecomputedMoveData.knightMoves[i]) {
-				if (!Piece::isColour(mpBoard->getPiece(targetSquare), friendlyColour))
-					mMoves.push_back(Move(i, targetSquare));
-			}
+	for (int i = 0; i < mpBoard->knights[friendlyColourIndex]->count(); i++) {
+		int startSquare = (*mpBoard->knights[friendlyColourIndex])[i];
+
+		for (int targetSquare : mPrecomputedMoveData.knightMoves[startSquare]) {
+			if (!Piece::isColour(mpBoard->getPiece(targetSquare), friendlyColour))
+				mMoves.push_back(Move(startSquare, targetSquare));
 		}
 	}
 }

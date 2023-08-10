@@ -29,6 +29,8 @@ public:
 
 	list<Move> generateLegalMove(Board* pBoard);
 
+	void generateAttackMoves();
+
 	void generateKingMoves();
 	void generatePawnMove();
 	void generateSlidingMoves();
