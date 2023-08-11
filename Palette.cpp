@@ -20,5 +20,7 @@ const SDL_Color Palette::highlight[PALETTE_HIGHLIGHT_SIZE] = {
 };
 const SDL_Color Palette::debug[PALETTE_DEBUG_SIZE] = {
 	{ 0, 125, 255, 204 },
-	{ 170, 0, 255, 204 }
+	{ 170, 0, 255, 204 },
+	{ 235, 97, 80, 204 },
+	{ 255, 170, 0, 204 }
 };

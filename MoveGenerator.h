@@ -22,14 +22,24 @@ public:
 	int friendlyColourIndex;
 	int opponentColourIndex;
 
+	bool inCheck;
+	bool inDoubleCheck;
+	bool attackedSquares[64]; //TODO: remplacer par bitmask
+	bool checkRaySquares[64]; //TODO: remplacer par bitmask
+	bool pinRaySquares[64]; //TODO: remplacer par bitmask
+
 	MoveGenerator();
 	~MoveGenerator();
 
 	void init();
+	void resetAttackData();
 
 	list<Move> generateLegalMove(Board* pBoard);
 
-	void generateAttackMoves();
+	void addRay(bool *ray, int startSquare, int targetSquare, int direction);
+	void generateSlidingAttackMap();
+	void generateSlidingPieceAttackMap(int startSquare, int startIndex, int endIndex);
+	void generateAttackData();
 
 	void generateKingMoves();
 	void generatePawnMove();
@@ -39,14 +49,19 @@ public:
 
 	void makePromotionMoves(int fromSquare, int toSquare);
 
-
 	bool hasKingSideCastleRight();
 	bool hasQueenSideCastleRight();
+	bool isInCheckAfterEnPassant(int square, int enPassantSquare);
+
+	bool isMovingInRay(int startSquare, int targetSquare, int direction);
+	bool isInCheckRay(int square);
+	bool isPinned(int square);
+	bool isAttackedSquare(int square);
 
 private:
 	PreComputedMoveData mPrecomputedMoveData;
 
-	list<Move> mMoves;	//TODO: passer en pointer de moves ?
+	list<Move> mMoves;
 	Board* mpBoard;
 
 	Profiler mProfiler;

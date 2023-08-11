@@ -28,8 +28,8 @@ public:
 	static bool isColour(int piece, int colour);
 	static int colour(int piece);
 	static int pieceType(int piece);
-	static bool isRookOrQueen(int piece);
-	static bool isBishopOrQueen(int piece);
+	static bool hasStraightAttack(int piece);
+	static bool hasDiagonalAttack(int piece);
 	static bool isSlidingPiece(int piece);
 };
 

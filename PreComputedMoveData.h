@@ -27,6 +27,8 @@ public:
 	vector<int> knightMoves[64];
 	vector<int> kingMoves[64];
 
+	// Array that return direction offset given the different between 2 squares index
+	int directionTable[127];
 
 	PreComputedMoveData();
 	~PreComputedMoveData();

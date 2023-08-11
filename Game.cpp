@@ -20,6 +20,13 @@ Game::~Game()
 
 bool Game::init()
 {
+	//Initializing graphics. If failed, end the program.
+	if (!mGraphic.init())
+		return false;
+
+	if (!mAudio.init())
+		return false;
+
 	// No piece selected at start
 	mSelectedSquare = -1;
 	mDraggedPiece = -1;
@@ -32,13 +39,6 @@ bool Game::init()
 
 	// Generate first set of legal moves
 	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
-
-	//Initializing graphics. If failed, end the program.
-	if (!mGraphic.init())
-		return false;
-
-	if (!mAudio.init())
-		return false;
 
 	return true;
 }
@@ -107,6 +107,14 @@ void Game::run()
 				mGraphic.debugDrawOccupiedSquares(mpBoard->kings);
 			else if (mDebugOccupiedSelector > 1)
 				mGraphic.debugDrawOccupiedSquares(DebugUtility::getPieceListFromSelector(mpBoard, mDebugOccupiedSelector));
+
+			if (mAttackedSquareSelector == 1)
+				mGraphic.debugDrawAttackedSquares(mMoveGenerator.attackedSquares);
+			else if (mAttackedSquareSelector == 2) {
+				mGraphic.debugDrawAttackedSquares(mMoveGenerator.checkRaySquares);
+				mGraphic.debugDrawAttackedSquares(mMoveGenerator.pinRaySquares, 3);
+			}
+
 			mGraphic.debugDrawSquareIndex();
 		}
 
@@ -120,11 +128,11 @@ void Game::run()
 
 		// Update the screen
 		mGraphic.update();
-
+		
 		// Handle IA play
-		if (true && mpBoard->colourToMove == Piece::black && !mIsGameOver) {
+		if ((false && mpBoard->colourToMove == Piece::black) && !mIsGameOver) {
 			delay += (Uint64)elapsed;
-			if (delay > 1000) {
+			if (delay > 150) {
 				delay = 0;
 				iaPlay();
 			}
@@ -175,6 +183,10 @@ bool Game::handleGeneralEvents(SDL_Event e, int x, int y) {
 		case SDLK_KP_1:
 			mDebugOccupiedSelector++;
 			if (mDebugOccupiedSelector > 6) mDebugOccupiedSelector = 0;
+			break;
+		case SDLK_KP_2:
+			mAttackedSquareSelector++;
+			if (mAttackedSquareSelector > 2) mAttackedSquareSelector = 0;
 			break;
 		}
 	}
@@ -398,6 +410,8 @@ bool Game::tryMove(Move move, bool isAnimated) {
 }
 
 bool Game::makeMove(Move move) {
+	int targetPiece = Piece::pieceType(mpBoard->getPiece(move.getTargetSquare()));
+
 	mAnimations.clear();
 
 	mHighlightSquares[0].clear();
@@ -409,11 +423,11 @@ bool Game::makeMove(Move move) {
 		mAnimations.push_front(Animation(&mGraphic, Move(rookMove.moveValue), mpBoard->getPiece(rookMove.getStartSquare()), Piece::none));	// Starting animation
 	}
 
-	playSound(move);
-
 	mpBoard->makeMove(move);
 
 	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
+
+	playSound(move, targetPiece, mMoveGenerator.inCheck);
 
 	if (mLegalMoves.empty())
 		gameOver();
@@ -511,10 +525,12 @@ void Game::clearHighlightSquares(int type) {
 	}
 }
 
-void Game::playSound(Move move) {
-	if (move.isPromotion()) 
+void Game::playSound(Move move, int targetPiece, bool inCheck) {
+	if (inCheck)
+		mAudio.playSound(Audio::moveCheck);
+	else if (move.isPromotion()) 
 		mAudio.playSound(Audio::promote);
-	else if ((Piece::pieceType(mpBoard->getPiece(move.getTargetSquare())) != Piece::none)
+	else if ((targetPiece != Piece::none)
 		|| move.isEnPassant())
 		mAudio.playSound(Audio::capture);
 	else if (move.isCastle())

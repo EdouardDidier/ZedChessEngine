@@ -209,7 +209,6 @@ int Board::getPiece(Coord coord) {
 	return this->getPiece(coord.getRank(), coord.getFile());
 }
 
-
 PieceList *Board::getPieceList(int pieceType, int pieceColour) {
 	return mAllPieceLists[pieceType + pieceColour - 8];
 }

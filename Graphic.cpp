@@ -134,8 +134,6 @@ void Graphic::drawCoordinate() {
 }
 
 void Graphic::drawHighlightSquares(vector<int> *highlightSquares) { //TODO: Not draw last move when square is hightlighted 
-	SDL_Rect dest;
-
 	// Loop through highlights squares arrays
 	for (int i = 0; i < PALETTE_HIGHLIGHT_SIZE; i++) {
 		for (int square : highlightSquares[i]) {
@@ -391,8 +389,6 @@ void Graphic::debugDrawSquareIndex() {
 }
 
 void Graphic::debugDrawOccupiedSquares(PieceList** pieceList) {
-	SDL_Rect dest;
-
 	for (int i = 0; i < 2; i++) {
 		for (int j = 0; j < pieceList[i]->count(); j++) {
 			Coord coord = Coord((*pieceList[i])[j]);
@@ -402,10 +398,18 @@ void Graphic::debugDrawOccupiedSquares(PieceList** pieceList) {
 }
 
 void Graphic::debugDrawOccupiedSquares(int *occupiedList) {
-	SDL_Rect dest;
-
 	for (int i = 0; i < 2; i++) {
 		Coord coord = Coord(occupiedList[i]);
 		drawSquare({ (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE }, Palette::debug[i]);
+	}
+}
+
+void Graphic::debugDrawAttackedSquares(bool *attackedSquares, int colour) {
+	for (int i = 0; i < 64; i++) {
+		if (!attackedSquares[i])
+			continue;
+
+		Coord coord = Coord(i);
+		drawSquare({ (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE }, Palette::debug[colour]);
 	}
 }

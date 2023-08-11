@@ -2,7 +2,7 @@
 
 #define PALETTE_TEXT_SIZE 4
 #define PALETTE_HIGHLIGHT_SIZE 6
-#define PALETTE_DEBUG_SIZE 2
+#define PALETTE_DEBUG_SIZE 4
 
 #include <SDL.h>
 

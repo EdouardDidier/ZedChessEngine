@@ -55,11 +55,9 @@ public:
 	void addHighlightSquare(int square, int type, bool persist = false);
 	void clearHighlightSquares(int typeHighlight = -1);
 
-	void playSound(Move move);
+	void playSound(Move move, int targetPiece, bool inCheck);
 
 private:
-	bool mDebugMode = false;
-
 	Timer mTimer;
 	Graphic mGraphic;
 	Audio mAudio;
@@ -91,6 +89,8 @@ private:
 
 	bool mIsGameOver = false;
 
+	bool mDebugMode = false;
+	int mAttackedSquareSelector = 0;
 	int mDebugOccupiedSelector = 0;
 };
 

@@ -1,6 +1,7 @@
 #include "Fen.h"
 
 const string Fen::fenStartPosition = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+// En passant capture that leves a check "8/6bb/8/8/R1pP2k1/4P3/P7/K7 b - d3 after d2-d4" "8/6bb/8/8/R1p3k1/4P3/P2P/K7 w - d3 after d2-d4"
 // 218 possible moves "R6R / 3Q4 / 1Q4Q1 / 4Q3 / 2Q4Q / Q4Q2 / pp1Q4 / kBNNK1B1 w - -0 1"
 
 map<char, int> Fen::symbolToPiece = {

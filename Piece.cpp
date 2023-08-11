@@ -20,11 +20,11 @@ int Piece::pieceType(int piece) {
 	return piece & typeMask;
 }
 
-bool Piece::isRookOrQueen(int piece) {
+bool Piece::hasStraightAttack(int piece) {
 	return (piece & 0b110) == 0b110;
 }
 
-bool Piece::isBishopOrQueen(int piece) {
+bool Piece::hasDiagonalAttack(int piece) {
 	return (piece & 0b101) == 0b101;
 }
 

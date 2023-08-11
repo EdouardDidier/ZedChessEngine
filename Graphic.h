@@ -74,7 +74,8 @@ public:
 	// Info / Debug functions
 	void debugDrawSquareIndex();
 	void debugDrawOccupiedSquares(PieceList **pieceList);
-	void debugDrawOccupiedSquares(int* occupiedList);
+	void debugDrawOccupiedSquares(int *occupiedList);
+	void debugDrawAttackedSquares(bool* attackedSquares, int colour = 2);
 
 private:
 	static map<int, int> mPieceToGraphic;

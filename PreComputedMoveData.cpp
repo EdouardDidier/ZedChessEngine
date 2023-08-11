@@ -48,6 +48,21 @@ PreComputedMoveData::PreComputedMoveData() {
 			}
 		}
 	}
+
+	// Calculate direction table (return direction given a difference of 2 square index (+63)
+	for (int i = 0; i < 127; i++) {
+		int offset = i - 63;
+		int sign = offset < 0 ? -1 : 1;
+		
+		if (!(offset % 7))
+			directionTable[i] = sign * 7;
+		else if (!(offset % 8))
+			directionTable[i] = sign * 8;
+		else if (!(offset % 9))
+			directionTable[i] = sign * 9;
+		else
+			directionTable[i] = sign;
+	}
 }
 
 PreComputedMoveData::~PreComputedMoveData() {
