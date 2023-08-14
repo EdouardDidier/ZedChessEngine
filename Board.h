@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-
+#include <list>
 
 #include "PieceList.h"
 #include "Move.h"
@@ -30,6 +30,9 @@ public:
 	// Bits 8-13 captured piece
 	// Bits 14-... fifty mover counter
 	Uint32 currentGameState;
+	list<Uint32> gameStateHistory;
+	list<Move> moveHistory;
+	list<Move> moveToRedo;
 
 	int moveCount; // Total full move played in game
 	int fiftyMoveCounter; // Number of halfmove last pawn move or capture
@@ -55,8 +58,12 @@ public:
 	Board();
 	~Board();
 
-	void makeMove(Move move);
+	void makeMove(Move move, bool eraseMoveToRedo = true);
+	void redoMove();
 	void undoMove();
+
+	Move getFirstRedoMove();
+	Move getLastMove();
 
 	int getPiece(int index);
 	int getPiece(int fileIndex, int rankIndex);

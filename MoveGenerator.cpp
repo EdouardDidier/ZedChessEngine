@@ -49,11 +49,15 @@ list<Move> MoveGenerator::generateLegalMove(Board* pBoard) {
 	generateAttackData();
 
 	generateKingMoves();
+
+	if (inDoubleCheck)
+		return mMoves;
+
 	generatePawnMove();
 	generateSlidingMoves();
 	generateKnightMoves();
 
-	cout << "Move gen time: " << mProfiler.endMeasure() << "ms\t(Avg: " << mProfiler.getAverage() << " ms)" << endl;
+	//cout << "Move gen time: " << mProfiler.endMeasure() << "ms\t(Avg: " << mProfiler.getAverage() << " ms)" << endl;
 
 	return mMoves;
 }
@@ -253,7 +257,7 @@ void MoveGenerator::generatePawnMove() {
 	int finalRankBeforePromotion = isWhiteToMove ? 6 : 1;
 
 	// Check and store if ep is possible
-	int epFile = ((int)(mpBoard->currentGameState >> 4) & 0b111);
+	int epFile = ((int)(mpBoard->currentGameState >> 4) & 0b1111) -1;
 	int epSquare = -1;
 	if (epFile != -1) {
 		epSquare = 8 * ((mpBoard->whiteToMove) ? 5 : 2) + epFile;
@@ -303,7 +307,7 @@ void MoveGenerator::generatePawnMove() {
 				int targetPiece = mpBoard->getPiece(targetSquare);
 
 				// If is pinned and not moving in the check ray skip move
-				if (isPinned(startSquare) && !isMovingInRay(startSquare, targetSquare, pawnCaptureDir)) {
+				if (isPinned(startSquare) && !isMovingInRay(startSquare, mpBoard->kings[friendlyColourIndex], pawnCaptureDir)) {
 					continue;
 				}
 
@@ -321,8 +325,9 @@ void MoveGenerator::generatePawnMove() {
 
 				// Capture en-passant
 				if (targetSquare == epSquare) {
-					if (!isInCheckAfterEnPassant(startSquare, targetSquare + squareForward))
-						mMoves.push_back(Move(startSquare, targetSquare, Move::Flag::enPassantCapture));
+					if (!isInCheckAfterEnPassant(startSquare, targetSquare - offset))
+						if (!inCheck || isInCheckRay(targetSquare - offset))
+							mMoves.push_back(Move(startSquare, targetSquare, Move::Flag::enPassantCapture));
 				}
 			}
 		}
@@ -448,6 +453,8 @@ bool MoveGenerator::isInCheckAfterEnPassant(int square, int enPassantSquare) {
 		// If is a rook or queen (straight attack) of opponent piece, then there is a check
 		if (Piece::hasStraightAttack(piece))
 			return true;
+		else
+			break;
 	}
 
 	return false;

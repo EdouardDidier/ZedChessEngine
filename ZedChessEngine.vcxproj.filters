@@ -37,6 +37,12 @@
     <Filter Include="Fichiers d%27en-tête\Audio">
       <UniqueIdentifier>{3470ba39-0a27-42b6-82e4-3262f25c7048}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers sources\Testing">
+      <UniqueIdentifier>{d17b45d2-20b8-4cd8-bf37-8e57f7459301}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\Testing">
+      <UniqueIdentifier>{06130900-9186-4e6f-ba45-5a6db808ea32}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -96,6 +102,12 @@
     <ClCompile Include="DebugUtility.cpp">
       <Filter>Fichiers sources\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="Perft.cpp">
+      <Filter>Fichiers sources\Testing</Filter>
+    </ClCompile>
+    <ClCompile Include="CLI.cpp">
+      <Filter>Fichiers sources\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphic.h">
@@ -150,6 +162,12 @@
       <Filter>Fichiers d%27en-tête\Engine</Filter>
     </ClInclude>
     <ClInclude Include="DebugUtility.h">
+      <Filter>Fichiers d%27en-tête\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Perft.h">
+      <Filter>Fichiers d%27en-tête\Testing</Filter>
+    </ClInclude>
+    <ClInclude Include="CLI.h">
       <Filter>Fichiers d%27en-tête\Utility</Filter>
     </ClInclude>
   </ItemGroup>

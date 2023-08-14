@@ -77,7 +77,7 @@ Board::~Board() {
 	delete mAllPieceLists;
 }
 
-void Board::makeMove(Move move) {
+void Board::makeMove(Move move, bool eraseMoveToRedo) {
 	int oldCastleState = currentGameState & 0b1111;
 	int newCastleState = oldCastleState;
 
@@ -97,8 +97,12 @@ void Board::makeMove(Move move) {
 
 	//cout << "(" << move.getStartSquare() << ", " << move.getTargetSquare() << ")" << endl;
 
+	// Erase history if requested
+	if (eraseMoveToRedo)
+		moveToRedo.clear();
+
 	// Handeling captured piece
-	currentGameState |= capturedPiece << 8;
+	currentGameState |= (Uint32)capturedPiece << 8;
 	if ((capturedPiece != Piece::none) && !move.isEnPassant()) {
 		getPieceList(capturedPieceType, capturedPieceColour)->removeAtSquare(targetSquare);
 	}
@@ -179,9 +183,15 @@ void Board::makeMove(Move move) {
 
 	// Pawn has moved two forwards, mark file with en-passant flag
 	if (moveFlag == Move::Flag::pawnTwoForward) {
-		int file = Coord(move.getStartSquare()).getFile(); //TODO refactor with real dedicated function for that purpose (Utility board representation static ?)
-		currentGameState |= (short unsigned int)(file << 4);
+		int file = Coord(move.getStartSquare()).getFile() + 1; //TODO refactor with real dedicated function for that purpose (Utility board representation static ?)
+		currentGameState |= (Uint32)(file << 4);
 	}
+
+	currentGameState |= (Uint32)newCastleState;
+
+	// Save move to history
+	gameStateHistory.push_back(currentGameState);
+	moveHistory.push_back(move);
 
 	// Change side to move
 	whiteToMove = !whiteToMove;
@@ -191,11 +201,117 @@ void Board::makeMove(Move move) {
 	opponentColourIndex = colourToMoveIndex;
 	colourToMoveIndex = 1 - colourToMoveIndex;
 
-	currentGameState |= newCastleState;
+	moveCount++;
+}
+
+void Board::redoMove() {
+	if (moveToRedo.empty())
+		return;
+
+	Move move = moveToRedo.back();
+	moveToRedo.pop_back();
+
+	makeMove(move, false);
+}
+
+void Board::undoMove() {
+	// Handeling history
+	if (moveHistory.empty())
+		return;
+
+	Move move = moveHistory.back();
+	moveHistory.pop_back();
+
+	moveToRedo.push_back(move);
+
+	// Preparing datas
+	opponentColourIndex = colourToMoveIndex;
+	colourToMove = opponentColour;
+	opponentColour = whiteToMove ? Piece::white : Piece::black;
+	colourToMoveIndex = 1 - colourToMoveIndex;
+	whiteToMove = !whiteToMove;
+
+	Uint32 currentCastleState = currentGameState & 0b1111;
+
+	int capturedPieceType = ((int)(currentGameState >> 8) & 0b111);
+	int capturedPiece = (capturedPieceType == 0) ? 0 : (capturedPieceType | opponentColour);
+
+	int startSquare = move.getStartSquare();
+	int targetSquare = move.getTargetSquare();
+	int moveFlags = move.getFlag();
+
+	int finalPieceType = Piece::pieceType(squares[targetSquare]);
+	int pieceType = move.isPromotion() ? Piece::pawn : finalPieceType;
+
+	// Handle regular capture
+	if (capturedPieceType != Piece::none && !move.isEnPassant()) {
+		getPieceList(capturedPieceType, opponentColour)->addAtSquare(targetSquare);
+	}
+
+	// Handle piece move
+	if (pieceType == Piece::king) {
+		kings[colourToMoveIndex] = startSquare;
+	}
+	else if (!move.isPromotion()) {
+		getPieceList(pieceType, colourToMove)->movePiece(targetSquare, startSquare);
+	}
+
+	squares[startSquare] = pieceType | colourToMove;
+	squares[targetSquare] = capturedPiece;
+
+	// Handle special moves
+	if (move.isPromotion()) {
+		pawns[colourToMoveIndex]->addAtSquare(startSquare);
+		switch (moveFlags)
+		{
+		case Move::Flag::promoteToQueen:
+			queens[colourToMoveIndex]->removeAtSquare(targetSquare);
+			break;
+		case Move::Flag::promoteToRook:
+			rooks[colourToMoveIndex]->removeAtSquare(targetSquare);
+			break;
+		case Move::Flag::promoteToBishop:
+			bishops[colourToMoveIndex]->removeAtSquare(targetSquare);
+			break;
+		case Move::Flag::promoteToKnight:
+			knights[colourToMoveIndex]->removeAtSquare(targetSquare);
+			break;
+		}
+	}
+	else if (move.isEnPassant()) {
+		int epSquare = targetSquare + ((whiteToMove ? -8 : 8));
+		squares[targetSquare] = Piece::none;
+		squares[epSquare] = capturedPiece;
+		pawns[opponentColourIndex]->addAtSquare(epSquare);
+	}
+	else if (move.isCastle()) {
+		// King side castle move are 6 = g1 and 62 = g8
+		bool isKingSide = targetSquare == 6 || targetSquare == 62;
+		int rookStartSquare = isKingSide ? targetSquare + 1 : targetSquare - 2;
+		int rookTargetSquare = isKingSide ? targetSquare - 1 : targetSquare + 1;
+
+		rooks[colourToMoveIndex]->movePiece(rookTargetSquare, rookStartSquare);
+
+		squares[rookStartSquare] = squares[rookTargetSquare];
+		squares[rookTargetSquare] = Piece::none;
+	}
+
+	gameStateHistory.pop_back();
+	currentGameState = gameStateHistory.back();
+
+	moveCount--;
+}
+
+Move Board::getFirstRedoMove() {
+	return moveToRedo.empty() ? Move(0) : moveToRedo.back();
+}
+
+Move Board::getLastMove() {
+	return moveHistory.empty() ? Move(0) : moveHistory.back();
 }
 
 int Board::getPiece(int index) {
-	return this->getPiece(Coord(index));
+	return squares[index];
 }
 
 int Board::getPiece(int fileIndex, int rankIndex) {
@@ -255,6 +371,7 @@ void Board::loadPosition(string fen) {
 	colourToMove = whiteToMove ? Piece::white : Piece::black;
 	opponentColour = whiteToMove ? Piece::black : Piece::white;
 	colourToMoveIndex = whiteToMove ? 0 : 1;
+	opponentColourIndex = 1 - colourToMoveIndex;
 
 	moveCount = position.moveCount;
 	fiftyMoveCounter = position.fiftyMoveCounter;
@@ -262,5 +379,11 @@ void Board::loadPosition(string fen) {
 	// Create gamestate
 	int whiteCastle = ((position.whiteCastleKingside) ? 1 << 0 : 0) | ((position.whiteCastleQueenside) ? 1 << 1 : 0);
 	int blackCastle = ((position.blackCastleKingside) ? 1 << 2 : 0) | ((position.blackCastleQueenside) ? 1 << 3 : 0);
-	currentGameState = (int)(whiteCastle | blackCastle);
+
+	// En-passant
+	int epState = position.epFile << 4;
+
+	currentGameState = (int)(whiteCastle | blackCastle | epState);
+	
+	gameStateHistory.push_back(currentGameState);
 }

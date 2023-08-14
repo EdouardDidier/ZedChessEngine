@@ -3,6 +3,7 @@
 #include <SDL_image.h>
 
 #include <iostream>
+#include <string>
 #include <vector>
 #include <list>
 
@@ -25,7 +26,7 @@ using namespace std;
 class Game
 {
 public:
-	Game();
+	Game(Board *pBoard = NULL);
 	~Game();
 
 	bool init();
@@ -46,6 +47,9 @@ public:
 	bool makeMove(Move move);
 	bool makeAnimatedMove(Move move);
 
+	bool redoMove();
+	bool undoMove();
+
 	bool iaPlay();
 
 	void gameOver();
@@ -55,9 +59,11 @@ public:
 	void addHighlightSquare(int square, int type, bool persist = false);
 	void clearHighlightSquares(int typeHighlight = -1);
 
-	void playSound(Move move, int targetPiece, bool inCheck);
+	void playSound(Move move, int targetPiecex, bool inCheck);
 
 private:
+	bool isPrivateBoard = true;
+
 	Timer mTimer;
 	Graphic mGraphic;
 	Audio mAudio;

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <map>
 
+#include "BoardRepresentation.h"
 #include "Piece.h"
 
 using namespace std;

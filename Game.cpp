@@ -1,6 +1,6 @@
 #include "Game.h"
 
-Game::Game()
+Game::Game(Board *pBoard)
 {
 	srand((unsigned)time(NULL));
 
@@ -9,13 +9,23 @@ Game::Game()
 		mHighlightSquares[i] = vector<int>();
 	}
 
-	// Creating the chess data
-	mpBoard = new Board();
+	if (pBoard == NULL) {
+		// Creating the chess data
+		mpBoard = new Board();
+
+		// Load start position from Fen string
+		mpBoard->loadStartPosition();
+	}
+	else {
+		mpBoard = pBoard;
+		isPrivateBoard = false;
+	}
 }
 
 Game::~Game()
 {
-	delete mpBoard;
+	if (isPrivateBoard)
+		delete mpBoard;
 }
 
 bool Game::init()
@@ -33,9 +43,6 @@ bool Game::init()
 	mToUnselectFlag = false;
 
 	mHoverSquare = Coord();
-
-	// Load start position from Fen string
-	mpBoard->loadStartPosition();
 
 	// Generate first set of legal moves
 	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
@@ -199,6 +206,12 @@ void Game::handleGameEvents(SDL_Event e, Uint32 pMouseState, const Uint8 *pKeybo
 	case SDL_KEYDOWN:
 		switch (e.key.keysym.sym)
 		{
+		case SDLK_LEFT:
+			undoMove();
+			break;
+		case SDLK_RIGHT:
+			redoMove();
+			break;
 		case SDLK_r:
 			delete mpBoard;
 
@@ -444,6 +457,72 @@ bool Game::makeAnimatedMove(Move move) {
 	makeMove(move);
 
 	mAnimations.push_back(Animation(&mGraphic, Move(move.moveValue), animatedPiece, targetPiece));	// Starting animation
+
+	return true;
+}
+
+bool Game::redoMove() {
+	Move move = mpBoard->getFirstRedoMove();
+
+	if (move.isInvalid())
+		return false;
+
+	int animatedPiece = mpBoard->getPiece(move.getStartSquare());
+	int targetPiece = mpBoard->getPiece(move.getTargetSquare());
+
+	mAnimations.clear();
+
+	mHighlightSquares[0].clear();
+	mHighlightSquares[0].push_back(move.getStartSquare());
+	mHighlightSquares[0].push_back(move.getTargetSquare());
+
+	if (move.isCastle()) {
+		Move rookMove = Move::getCastleRookMove(move);
+		mAnimations.push_front(Animation(&mGraphic, Move(rookMove.moveValue), mpBoard->getPiece(rookMove.getStartSquare()), Piece::none));	// Starting animation
+	}
+
+	mpBoard->redoMove();
+
+	mAnimations.push_back(Animation(&mGraphic, Move(move.moveValue), animatedPiece, targetPiece));	// Starting animation
+
+	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
+
+	playSound(move, targetPiece, mMoveGenerator.inCheck);
+
+	return true;
+}
+
+bool Game::undoMove() {
+	Move move = mpBoard->getLastMove();
+
+	if (move.isInvalid())
+		return false;
+
+	int animatedPiece = mpBoard->getPiece(move.getTargetSquare());
+	int targetPiece = mpBoard->getPiece(move.getStartSquare());
+
+	mAnimations.clear();
+
+	if (move.isCastle()) {
+		Move rookMove = Move::getCastleRookMove(move);
+		mAnimations.push_front(Animation(&mGraphic, Move(rookMove.getTargetSquare(), rookMove.getStartSquare()), mpBoard->getPiece(rookMove.getTargetSquare()), Piece::none));	// Starting animation
+	}
+
+	mpBoard->undoMove();
+
+	mAnimations.push_back(Animation(&mGraphic, Move(move.getTargetSquare(), move.getStartSquare()), animatedPiece, targetPiece));	// Starting animation
+
+	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
+
+	playSound(move, targetPiece, mMoveGenerator.inCheck);
+
+	move = mpBoard->getLastMove();
+	mHighlightSquares[0].clear();
+
+	if (!move.isInvalid()) {
+		mHighlightSquares[0].push_back(move.getStartSquare());
+		mHighlightSquares[0].push_back(move.getTargetSquare());
+	}
 
 	return true;
 }
