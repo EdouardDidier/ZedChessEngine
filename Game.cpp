@@ -1,9 +1,6 @@
 #include "Game.h"
 
-Game::Game(Board *pBoard)
-{
-	srand((unsigned)time(NULL));
-
+Game::Game(Board *pBoard) {
 	// Initilizing empty arrays for highlighted square tacking
 	for (int i = 0; i < PALETTE_HIGHLIGHT_SIZE; i++) {
 		mHighlightSquares[i] = vector<int>();
@@ -20,6 +17,9 @@ Game::Game(Board *pBoard)
 		mpBoard = pBoard;
 		isPrivateBoard = false;
 	}
+
+	mSearchWhite.init(mpBoard);
+	mSearchBlack.init(mpBoard);
 }
 
 Game::~Game()
@@ -137,11 +137,12 @@ void Game::run()
 		mGraphic.update();
 		
 		// Handle IA play
-		if ((false && mpBoard->colourToMove == Piece::black) && !mIsGameOver) {
+		if ((false || mpBoard->colourToMove == Piece::black) && !mIsGameOver) {
 			delay += (Uint64)elapsed;
-			if (delay > 150) {
-				delay = 0;
+			if (delay > 200) {
 				iaPlay();
+				mTimer.getElapsedTime();
+				delay = 0;
 			}
 		}
 
@@ -528,16 +529,20 @@ bool Game::undoMove() {
 }
 
 bool Game::iaPlay() {
-	int chosenMove = rand() % mLegalMoves.size();
-	int i = 0;
+	Move move;
 
-	for (Move move : mLegalMoves) {
-		if (chosenMove == i) {
-			makeAnimatedMove(move);
-			return true;
-		}
-		
-		i++;
+	if (mpBoard->colourToMove == Piece::white) {
+		mSearchWhite.searchMove(4);
+		move = mSearchWhite.getBestMove();
+	}
+	else {
+		mSearchBlack.searchMove(4);
+		move = mSearchBlack.getBestMove();
+	}
+
+	if (!move.isInvalid()) {
+		makeAnimatedMove(move);
+		return true;
 	}
 
 	return false;

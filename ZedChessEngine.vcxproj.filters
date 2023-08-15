@@ -43,6 +43,18 @@
     <Filter Include="Fichiers d%27en-tête\Testing">
       <UniqueIdentifier>{06130900-9186-4e6f-ba45-5a6db808ea32}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\AI">
+      <UniqueIdentifier>{8ca29fb7-c7f8-4983-8e17-7499309e6d0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\AI">
+      <UniqueIdentifier>{85129eae-613e-43c4-821d-c18d81379f3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\AI\old">
+      <UniqueIdentifier>{b74b7d6e-d56c-46bf-a845-45c8559cf1b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\AI\old">
+      <UniqueIdentifier>{952d6eac-f3bc-442e-ba39-8ecbc3cd8d74}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -108,6 +120,18 @@
     <ClCompile Include="CLI.cpp">
       <Filter>Fichiers sources\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="Evaluation.cpp">
+      <Filter>Fichiers sources\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Search.cpp">
+      <Filter>Fichiers sources\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ai\old\EvaluationOld.cpp">
+      <Filter>Fichiers sources\AI\old</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ai\old\SearchOld.cpp">
+      <Filter>Fichiers sources\AI\old</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphic.h">
@@ -169,6 +193,18 @@
     </ClInclude>
     <ClInclude Include="CLI.h">
       <Filter>Fichiers d%27en-tête\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Evaluation.h">
+      <Filter>Fichiers d%27en-tête\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Search.h">
+      <Filter>Fichiers d%27en-tête\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ai\old\EvaluationOld.h">
+      <Filter>Fichiers d%27en-tête\AI\old</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ai\old\SearchOld.h">
+      <Filter>Fichiers d%27en-tête\AI\old</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

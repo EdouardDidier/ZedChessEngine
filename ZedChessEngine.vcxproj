@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -78,7 +78,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)SDL2\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)SDL2\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)SDL2\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -152,6 +152,7 @@
     <ClCompile Include="CLI.cpp" />
     <ClCompile Include="Coord.cpp" />
     <ClCompile Include="DebugUtility.cpp" />
+    <ClCompile Include="Evaluation.cpp" />
     <ClCompile Include="Fen.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Geometry.cpp" />
@@ -165,6 +166,9 @@
     <ClCompile Include="PieceList.cpp" />
     <ClCompile Include="PreComputedMoveData.cpp" />
     <ClCompile Include="Profiler.cpp" />
+    <ClCompile Include="Search.cpp" />
+    <ClCompile Include="src\ai\old\EvaluationOld.cpp" />
+    <ClCompile Include="src\ai\old\SearchOld.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +179,7 @@
     <ClInclude Include="CLI.h" />
     <ClInclude Include="Coord.h" />
     <ClInclude Include="DebugUtility.h" />
+    <ClInclude Include="Evaluation.h" />
     <ClInclude Include="Fen.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Geometry.h" />
@@ -187,6 +192,9 @@
     <ClInclude Include="PieceList.h" />
     <ClInclude Include="PreComputedMoveData.h" />
     <ClInclude Include="Profiler.h" />
+    <ClInclude Include="Search.h" />
+    <ClInclude Include="src\ai\old\EvaluationOld.h" />
+    <ClInclude Include="src\ai\old\SearchOld.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

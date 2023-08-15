@@ -19,6 +19,9 @@
 #include "Move.h"
 #include "MoveGenerator.h"
 
+#include "Search.h"
+#include "./src/ai/old/SearchOld.h"
+
 #include "DebugUtility.h"
 
 using namespace std;
@@ -78,6 +81,8 @@ private:
 	vector<int> mHighlightSquares[PALETTE_HIGHLIGHT_SIZE];
 
 	Board* mpBoard;
+	Search mSearchWhite;
+	Search mSearchBlack;
 
 	MoveGenerator mMoveGenerator;
 	list<Move> mLegalMoves;
