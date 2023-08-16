@@ -81,7 +81,7 @@ private:
 	vector<int> mHighlightSquares[PALETTE_HIGHLIGHT_SIZE];
 
 	Board* mpBoard;
-	Search mSearchWhite;
+	SearchV2 mSearchWhite;
 	Search mSearchBlack;
 
 	MoveGenerator mMoveGenerator;

@@ -257,7 +257,7 @@ void MoveGenerator::generatePawnMove() {
 	int finalRankBeforePromotion = isWhiteToMove ? 6 : 1;
 
 	// Check and store if ep is possible
-	int epFile = ((int)(mpBoard->currentGameState >> 4) & 0b1111) -1;
+	int epFile = ((int)(mpBoard->currentGameState >> 4) & 0b1111) - 1;
 	int epSquare = -1;
 	if (epFile != -1) {
 		epSquare = 8 * ((mpBoard->whiteToMove) ? 5 : 2) + epFile;

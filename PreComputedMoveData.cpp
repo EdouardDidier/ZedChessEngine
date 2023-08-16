@@ -1,8 +1,6 @@
 #include "PreComputedMoveData.h"
 
 PreComputedMoveData::PreComputedMoveData() {
-
-
 	for (int squareIndex = 0; squareIndex < 64; squareIndex++) {
 		// Calculate all number of squares to edge in each direction
 		int y = squareIndex / 8;

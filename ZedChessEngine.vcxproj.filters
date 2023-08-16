@@ -132,6 +132,9 @@
     <ClCompile Include="src\ai\old\SearchOld.cpp">
       <Filter>Fichiers sources\AI\old</Filter>
     </ClCompile>
+    <ClCompile Include="Zobrist.cpp">
+      <Filter>Fichiers sources\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphic.h">
@@ -205,6 +208,9 @@
     </ClInclude>
     <ClInclude Include="src\ai\old\SearchOld.h">
       <Filter>Fichiers d%27en-tête\AI\old</Filter>
+    </ClInclude>
+    <ClInclude Include="Zobrist.h">
+      <Filter>Fichiers d%27en-tête\Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

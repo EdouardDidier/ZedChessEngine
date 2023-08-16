@@ -170,6 +170,7 @@
     <ClCompile Include="src\ai\old\EvaluationOld.cpp" />
     <ClCompile Include="src\ai\old\SearchOld.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="Zobrist.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -196,6 +197,7 @@
     <ClInclude Include="src\ai\old\EvaluationOld.h" />
     <ClInclude Include="src\ai\old\SearchOld.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Zobrist.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

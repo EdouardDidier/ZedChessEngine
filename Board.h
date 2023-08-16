@@ -6,10 +6,13 @@
 #include "PieceList.h"
 #include "Move.h"
 
+#include "Zobrist.h"
 #include "Fen.h"
 #include "Coord.h"
 
 using namespace std;
+
+class Zobrist;
 
 class Board
 {
@@ -33,6 +36,10 @@ public:
 	list<Uint32> gameStateHistory;
 	list<Move> moveHistory;
 	list<Move> moveToRedo;
+
+	Uint64 zobristKey;
+	list<Uint64> zobristKeyHistory;
+	list<Uint64> repetitionHistory; //TODO: probably create a history of repetition history for undoMove
 
 	int moveCount; // Total full move played in game
 	int fiftyMoveCounter; // Number of halfmove last pawn move or capture

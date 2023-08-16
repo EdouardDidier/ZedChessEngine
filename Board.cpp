@@ -1,6 +1,8 @@
 #include "Board.h"
 
 Board::Board() {
+	Zobrist::init();
+
 	squares = new int[64];
 
 	whiteToMove = true;
@@ -10,6 +12,7 @@ Board::Board() {
 	opponentColourIndex = 1;
 
 	currentGameState = 0;
+	zobristKey = 0;
 
 	moveCount = 1;
 	fiftyMoveCounter = 0;
@@ -93,9 +96,9 @@ void Board::makeMove(Move move, bool eraseMoveToRedo) {
 	int capturedPieceType = Piece::pieceType(capturedPiece);
 	int capturedPieceColour = Piece::colour(capturedPiece);
 
-	currentGameState = 0;
-
 	//cout << "(" << move.getStartSquare() << ", " << move.getTargetSquare() << ")" << endl;
+
+	currentGameState = 0;
 
 	// Erase history if requested
 	if (eraseMoveToRedo)
@@ -192,6 +195,8 @@ void Board::makeMove(Move move, bool eraseMoveToRedo) {
 	// Save move to history
 	gameStateHistory.push_back(currentGameState);
 	moveHistory.push_back(move);
+	zobristKeyHistory.push_back(zobristKey);
+	repetitionHistory.push_back(zobristKey);
 
 	// Change side to move
 	whiteToMove = !whiteToMove;
@@ -299,6 +304,12 @@ void Board::undoMove() {
 	gameStateHistory.pop_back();
 	currentGameState = gameStateHistory.back();
 
+	zobristKeyHistory.pop_back();
+	zobristKey = zobristKeyHistory.back();
+
+	if (!repetitionHistory.empty())
+		repetitionHistory.pop_back();
+
 	moveCount--;
 }
 
@@ -384,6 +395,9 @@ void Board::loadPosition(string fen) {
 	int epState = position.epFile << 4;
 
 	currentGameState = (int)(whiteCastle | blackCastle | epState);
-	
 	gameStateHistory.push_back(currentGameState);
+
+	zobristKey = Zobrist::calculateKey(this);
+	zobristKeyHistory.push_back(zobristKey);
+	repetitionHistory.push_back(zobristKey);
 }

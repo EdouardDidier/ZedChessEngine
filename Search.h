@@ -20,8 +20,8 @@ public:
 
 	void init(Board *pBoard);
 
-	void searchMove(int depth);
-	int negaMax(int depth);
+	void searchMove(int depthLeft);
+	int alphaBeta(int alpha, int beta, int depthLeft);
 	
 	Move getBestMove();
 	int getEval();
