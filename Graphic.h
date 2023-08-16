@@ -59,7 +59,7 @@ public:
 	void drawPiece(int piece, int x, int y);
 	void drawPiece(int piece, Coord coord);
 
-	void drawGameOver(bool whiteWin);
+	void drawGameOver(bool whiteWin, bool isDraw);
 
 	void drawSquare(SDL_Rect dest, SDL_Colour colour);
 	void drawText(string str, int x, int y, int color = 0);

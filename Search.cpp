@@ -35,9 +35,6 @@ void Search::searchMove(int depthLeft) {
 		int score = -alphaBeta(-beta, -alpha, depthLeft - 1);
 
 		mpBoard->undoMove();
-		if (score >= beta) {
-			return; // Fail hard beta-cutoff
-		}
 
 		if (score > alpha) {
 			alpha = score; // Alpha acts like max in MiniMax

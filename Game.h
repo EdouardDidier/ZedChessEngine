@@ -55,8 +55,6 @@ public:
 
 	bool iaPlay();
 
-	void gameOver();
-
 	Coord getBoardCoord(int y, int x);
 
 	void addHighlightSquare(int square, int type, bool persist = false);
@@ -81,8 +79,8 @@ private:
 	vector<int> mHighlightSquares[PALETTE_HIGHLIGHT_SIZE];
 
 	Board* mpBoard;
-	SearchV2 mSearchWhite;
-	Search mSearchBlack;
+	Search mSearchWhite;
+	SearchV1 mSearchBlack;
 
 	MoveGenerator mMoveGenerator;
 	list<Move> mLegalMoves;
@@ -99,6 +97,7 @@ private:
 	Move mPromotionMove = Move(0);
 
 	bool mIsGameOver = false;
+	bool mIsDraw = false;
 
 	bool mDebugMode = false;
 	int mAttackedSquareSelector = 0;

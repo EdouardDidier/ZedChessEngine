@@ -241,8 +241,8 @@ void Graphic::drawPiece(int piece, Coord coord) {
 	this->drawPiece(piece, (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 4)* SQUARE_SIZE + WINDOW_HEIGHT / 2);
 }
 
-void Graphic::drawGameOver(bool whiteWin) {
-	string str = whiteWin ? "White wins !" : "Black wins !";
+void Graphic::drawGameOver(bool whiteWin, bool isDraw) {
+	string str = isDraw ? "Draw" : (whiteWin ? "White wins !" : "Black wins !");
 	drawText(str, 10, 10, 0);
 }
 

@@ -81,6 +81,7 @@ Board::~Board() {
 }
 
 void Board::makeMove(Move move, bool eraseMoveToRedo) {
+	int oldEpFile = (currentGameState >> 4) & 0b1111;
 	int oldCastleState = currentGameState & 0b1111;
 	int newCastleState = oldCastleState;
 
@@ -104,10 +105,11 @@ void Board::makeMove(Move move, bool eraseMoveToRedo) {
 	if (eraseMoveToRedo)
 		moveToRedo.clear();
 
-	// Handeling captured piece
+	// Handeling captured piece, en-passant capture are managed later
 	currentGameState |= (Uint32)capturedPiece << 8;
 	if ((capturedPiece != Piece::none) && !move.isEnPassant()) {
 		getPieceList(capturedPieceType, capturedPieceColour)->removeAtSquare(targetSquare);
+		zobristKey ^= Zobrist::pieceKeys[opponentColourIndex][capturedPieceType][targetSquare];	// Removing captured piece from Zobrist key
 	}
 
 	// Update Piece List and Update Caste state
@@ -138,13 +140,19 @@ void Board::makeMove(Move move, bool eraseMoveToRedo) {
 	// Handle Castle moves
 	if (move.isCastle()) {
 		Move rookMove = Move::getCastleRookMove(move);
+		int rookStartSquare = rookMove.getStartSquare();
+		int rookTargetSquare = rookMove.getTargetSquare();
 
 		// Update PieceList
-		rooks[colourToMoveIndex]->movePiece(rookMove.getStartSquare(), rookMove.getTargetSquare());
+		rooks[colourToMoveIndex]->movePiece(rookStartSquare, rookTargetSquare);
 
 		// Update board
-		squares[rookMove.getTargetSquare()] = squares[rookMove.getStartSquare()];
-		squares[rookMove.getStartSquare()] = Piece::none;
+		squares[rookTargetSquare] = squares[rookStartSquare];
+		squares[rookStartSquare] = Piece::none;
+
+		// Update Zobrist key
+		zobristKey ^= Zobrist::pieceKeys[colourToMoveIndex][Piece::rook][rookStartSquare];
+		zobristKey ^= Zobrist::pieceKeys[colourToMoveIndex][Piece::rook][rookTargetSquare];
 	} 
 	// Handle Promotions
 	else if (move.isPromotion()) {
@@ -174,20 +182,42 @@ void Board::makeMove(Move move, bool eraseMoveToRedo) {
 	}
 	// Handle captures en-passant
 	else if (move.isEnPassant()) {
+		// Defining ep pawn square (pawn captured)
+		int epPawnSquare = targetSquare + (whiteToMove ? -8 : 8);
+
 		// Update game state
 		currentGameState |= (Piece::pawn | opponentColour) << 8;
 
 		// Update PieceList
-		pawns[opponentColourIndex]->removeAtSquare(targetSquare + (whiteToMove ? -8 : 8));
+		pawns[opponentColourIndex]->removeAtSquare(epPawnSquare);
 
 		// Update Board
-		squares[targetSquare + (whiteToMove ? -8 : 8)] = Piece::none;
+		squares[epPawnSquare] = Piece::none;
+
+		// Update Zobrist Key
+		zobristKey ^= Zobrist::pieceKeys[opponentColourIndex][Piece::pawn][epPawnSquare];
 	}
 
 	// Pawn has moved two forwards, mark file with en-passant flag
 	if (moveFlag == Move::Flag::pawnTwoForward) {
 		int file = Coord(move.getStartSquare()).getFile() + 1; //TODO refactor with real dedicated function for that purpose (Utility board representation static ?)
 		currentGameState |= (Uint32)(file << 4);
+		zobristKey ^= Zobrist::epKeys[file];
+	}
+
+	// Update Zobrist key
+	zobristKey ^= Zobrist::sideToMoveKey;
+	zobristKey ^= Zobrist::pieceKeys[colourToMoveIndex][pieceType][startSquare];
+	zobristKey ^= Zobrist::pieceKeys[colourToMoveIndex][Piece::pieceType(squares[targetSquare])][targetSquare];
+
+	// Removing old ep file in Zobrist key if needed
+	if (oldEpFile != 0)
+		zobristKey ^= Zobrist::epKeys[oldEpFile];
+
+	// Updating castle state in Zobrist key if needed
+	if (newCastleState != oldCastleState) {
+		zobristKey ^= Zobrist::casleKeys[oldCastleState]; // Removing old castle rights
+		zobristKey ^= Zobrist::casleKeys[newCastleState]; // Adding new castle rights
 	}
 
 	currentGameState |= (Uint32)newCastleState;
@@ -338,6 +368,20 @@ int Board::getPiece(Coord coord) {
 
 PieceList *Board::getPieceList(int pieceType, int pieceColour) {
 	return mAllPieceLists[pieceType + pieceColour - 8];
+}
+
+bool Board::isRepetition() {
+	int count = 0;
+	
+	for (Uint64 key : repetitionHistory) {
+		if (zobristKey == key)
+			count++;
+		
+		if (count == 3) // 3 Because current key is included in the history
+			return true;
+	}
+
+	return false;
 }
 
 // Load starting position

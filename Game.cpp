@@ -131,7 +131,7 @@ void Game::run()
 		}
 
 		if (mIsGameOver)
-			mGraphic.drawGameOver(!mpBoard->whiteToMove);
+			mGraphic.drawGameOver(!mpBoard->whiteToMove, mIsDraw);
 
 		// Update the screen
 		mGraphic.update();
@@ -224,6 +224,7 @@ void Game::handleGameEvents(SDL_Event e, Uint32 pMouseState, const Uint8 *pKeybo
 			clearHighlightSquares(0);
 
 			mIsGameOver = false;
+			mIsDraw = false;
 
 			mpBoard->loadStartPosition(); //TODO: create resest fonction
 			mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
@@ -443,8 +444,18 @@ bool Game::makeMove(Move move) {
 
 	playSound(move, targetPiece, mMoveGenerator.inCheck);
 
-	if (mLegalMoves.empty())
-		gameOver();
+	// Checking if game is over
+	if (mpBoard->isRepetition()) {
+		mIsGameOver = true;
+		mIsDraw = true;
+		mLegalMoves.clear();
+	}
+	else if (mLegalMoves.empty()) {
+		mIsGameOver = true;
+		
+		if (!mMoveGenerator.inCheck)
+			mIsDraw = true;
+	}
 
 	selectSquare(mSelectedSquare);
 
@@ -532,11 +543,11 @@ bool Game::iaPlay() {
 	Move move;
 
 	if (mpBoard->colourToMove == Piece::white) {
-		mSearchWhite.searchMove(5);
+		mSearchWhite.searchMove(4);
 		move = mSearchWhite.getBestMove();
 	}
 	else {
-		mSearchBlack.searchMove(5);
+		mSearchBlack.searchMove(3);
 		move = mSearchBlack.getBestMove();
 	}
 
@@ -546,10 +557,6 @@ bool Game::iaPlay() {
 	}
 
 	return false;
-}
-
-void Game::gameOver() {
-	mIsGameOver = true;
 }
 
 Coord Game::getBoardCoord(int y, int x)

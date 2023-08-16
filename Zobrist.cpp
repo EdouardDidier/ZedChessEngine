@@ -1,6 +1,6 @@
 #include "Zobrist.h"
 
-Uint64 Zobrist::sideKey;
+Uint64 Zobrist::sideToMoveKey;
 Uint64 Zobrist::pieceKeys[2][8][64];
 Uint64 Zobrist::casleKeys[16];
 Uint64 Zobrist::epKeys[8];
@@ -12,7 +12,7 @@ void Zobrist::init() {
 	cout << "Initializing Zobrist keys..." << endl;
 
 	// Initializing side key
-	sideKey = mGen64();
+	sideToMoveKey = mGen64();
 
 	// Initializing piece keys
 	for (int colourIndex = 0; colourIndex < 2; colourIndex++) {
@@ -41,7 +41,7 @@ Uint64 Zobrist::calculateKey(Board *pBoard) {
 	Uint64 key = 0;
 
 	if (!pBoard->whiteToMove)
-		key ^= sideKey;
+		key ^= sideToMoveKey;
 
 	for (int i = 0; i < 64; i++) {
 		int piece = pBoard->getPiece(i);

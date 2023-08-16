@@ -46,6 +46,9 @@ list<Move> MoveGenerator::generateLegalMove(Board* pBoard) {
 
 	init();
 
+	if (pBoard->isRepetition())
+		return mMoves;
+
 	generateAttackData();
 
 	generateKingMoves();

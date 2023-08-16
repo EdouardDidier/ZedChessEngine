@@ -15,7 +15,7 @@ class Zobrist
 {
 public:
 	// Zobrist key for move to play
-	static Uint64 sideKey;
+	static Uint64 sideToMoveKey;
 
 	// Zobrist keys for pieces (2 colors, 6 pieces, wasting 2 dimensions for efficienty, matching piece values, 64 squares)
 	static Uint64 pieceKeys[2][8][64];

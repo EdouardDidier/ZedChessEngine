@@ -78,6 +78,8 @@ public:
 
 	PieceList *getPieceList(int pieceType, int pieceColour);
 
+	bool isRepetition();
+
 	void loadStartPosition();
 	void loadPosition(string fen);
 
