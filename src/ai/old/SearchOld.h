@@ -3,8 +3,8 @@
 #include <iostream>
 #include <list>
 
-#include "Board.h" 
-#include "MoveGenerator.h"
+#include "./src/engine/Board.h" 
+#include "./src/engine/MoveGenerator.h"
 
 #include "EvaluationOld.h"
 

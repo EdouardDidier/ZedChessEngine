@@ -5,7 +5,7 @@
 #include <iostream>
 #include <random>
 
-#include "Board.h"
+#include "./src/engine/Board.h"
 
 using namespace std;
 

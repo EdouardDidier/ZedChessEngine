@@ -7,22 +7,22 @@
 #include <vector>
 #include <list>
 
-#include "Timer.h"
+#include "./src/graphics/Timer.h"
 
-#include "Audio.h"
+#include "./src/audio/Audio.h"
 
-#include "Graphic.h"
-#include "Animation.h"
-#include "Coord.h"
+#include "./src/graphics/Graphic.h"
+#include "./src/graphics/Animation.h"
+#include "./src/graphics/Coord.h"
 
 #include "Board.h"
 #include "Move.h"
 #include "MoveGenerator.h"
 
-#include "Search.h"
+#include "./src/ai/Search.h"
 #include "./src/ai/old/SearchOld.h"
 
-#include "DebugUtility.h"
+#include "./src/utility/DebugUtility.h"
 
 using namespace std;
 
@@ -80,7 +80,6 @@ private:
 
 	Board* mpBoard;
 	SearchV3 mSearchWhite;
-	SearchV3 mSearchV3;
 	SearchV4 mSearchBlack;
 
 	MoveGenerator mMoveGenerator;

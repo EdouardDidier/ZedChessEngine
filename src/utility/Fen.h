@@ -5,8 +5,8 @@
 #include <iostream>
 #include <map>
 
-#include "BoardRepresentation.h"
-#include "Piece.h"
+#include "./src/utility/BoardRepresentation.h"
+#include "./src/engine/Piece.h"
 
 using namespace std;
 

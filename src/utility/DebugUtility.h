@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Board.h"
-#include "PieceList.h"
+#include "./src/engine/Board.h"
+#include "./src/engine/PieceList.h"
 
 class DebugUtility
 {

@@ -7,7 +7,7 @@
 #include "Graphic.h"
 #include "Coord.h"
 
-#include "Move.h"
+#include "./src/engine/Move.h"
 
 class Graphic;
 

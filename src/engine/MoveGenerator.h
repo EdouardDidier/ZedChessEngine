@@ -9,7 +9,7 @@
 #include "Piece.h"
 #include "Move.h"
 
-#include "Profiler.h"
+#include "./src/utility/Profiler.h"
 
 using namespace std;
 

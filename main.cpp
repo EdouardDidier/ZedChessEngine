@@ -1,5 +1,5 @@
-#include "Game.h"
-#include "CLI.h"
+#include "./src/engine/Game.h"
+#include "./src/utility/CLI.h"
 
 int main(int argc, char** args) {
 	// If argument, enter test mode

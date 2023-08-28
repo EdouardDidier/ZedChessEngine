@@ -5,12 +5,12 @@
 
 #include <SDL.h>
 
-#include "Board.h"
-#include "Move.h"
-#include "MoveGenerator.h"
+#include "./src/engine/Board.h"
+#include "./src/engine/Move.h"
+#include "./src/engine/MoveGenerator.h"
 
-#include "BoardRepresentation.h"
-#include "Profiler.h"
+#include "./src/utility/BoardRepresentation.h"
+#include "./src/utility/Profiler.h"
 
 class Perft
 {

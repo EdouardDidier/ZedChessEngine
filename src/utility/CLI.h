@@ -6,15 +6,15 @@
 
 #include <SDL.h>
 
-#include "Game.h"
+#include "./src/engine/Game.h"
 
-#include "Board.h"
-#include "BoardRepresentation.h"
+#include "./src/engine/Board.h"
+#include "./src/utility/BoardRepresentation.h"
 
-#include "Move.h"
-#include "Piece.h"
+#include "./src/engine/Move.h"
+#include "./src/engine/Piece.h"
 
-#include "Perft.h"
+#include "./src/testing/Perft.h"
 #include "Profiler.h"
 
 using namespace std;

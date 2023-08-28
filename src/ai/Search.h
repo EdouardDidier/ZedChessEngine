@@ -3,13 +3,13 @@
 #include <iostream>
 #include <vector>
 
-#include "Board.h"
-#include "MoveGenerator.h"
+#include "./src/engine/Board.h"
+#include "./src/engine/MoveGenerator.h"
 
 #include "Evaluation.h"
-#include "TranspositionTable.h"
+#include "./src/engine/TranspositionTable.h"
 
-#include "Profiler.h"
+#include "./src/utility/Profiler.h"
 
 using namespace std;
 

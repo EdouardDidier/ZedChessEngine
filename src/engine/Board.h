@@ -6,9 +6,9 @@
 #include "PieceList.h"
 #include "Move.h"
 
-#include "Zobrist.h"
-#include "Fen.h"
-#include "Coord.h"
+#include "./src/utility/Zobrist.h"
+#include "./src/utility/Fen.h"
+#include "./src/graphics/Coord.h"
 
 using namespace std;
 

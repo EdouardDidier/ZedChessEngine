@@ -30,9 +30,9 @@
 #include "Palette.h"
 #include "Coord.h"
 
-#include "Piece.h"
-#include "PieceList.h"
-#include "Move.h"
+#include "./src/engine/Piece.h"
+#include "./src/engine/PieceList.h"
+#include "./src/engine/Move.h"
 
 using namespace std;
 

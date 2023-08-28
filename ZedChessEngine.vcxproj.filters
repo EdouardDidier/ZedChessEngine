@@ -60,70 +60,67 @@
     <ClCompile Include="main.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic.cpp">
+    <ClCompile Include="src\graphics\Graphic.cpp">
       <Filter>Fichiers sources\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Palette.cpp">
+    <ClCompile Include="src\graphics\Palette.cpp">
       <Filter>Fichiers sources\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Fen.cpp">
+    <ClCompile Include="src\utility\Fen.cpp">
       <Filter>Fichiers sources\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="Board.cpp">
+    <ClCompile Include="src\engine\Board.cpp">
       <Filter>Fichiers sources\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Piece.cpp">
+    <ClCompile Include="src\engine\Piece.cpp">
       <Filter>Fichiers sources\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="MoveGenerator.cpp">
+    <ClCompile Include="src\engine\MoveGenerator.cpp">
       <Filter>Fichiers sources\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="PreComputedMoveData.cpp">
+    <ClCompile Include="src\engine\PreComputedMoveData.cpp">
       <Filter>Fichiers sources\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Game.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Coord.cpp">
+    <ClCompile Include="src\graphics\Coord.cpp">
       <Filter>Fichiers sources\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Geometry.cpp">
+    <ClCompile Include="src\graphics\Geometry.cpp">
       <Filter>Fichiers sources\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Move.cpp">
+    <ClCompile Include="src\engine\Move.cpp">
       <Filter>Fichiers sources\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Timer.cpp">
+    <ClCompile Include="src\graphics\Timer.cpp">
       <Filter>Fichiers sources\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Animation.cpp">
+    <ClCompile Include="src\graphics\Animation.cpp">
       <Filter>Fichiers sources\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Audio.cpp">
+    <ClCompile Include="src\audio\Audio.cpp">
       <Filter>Fichiers sources\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Profiler.cpp">
+    <ClCompile Include="src\utility\Profiler.cpp">
       <Filter>Fichiers sources\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="BoardRepresentation.cpp">
+    <ClCompile Include="src\utility\BoardRepresentation.cpp">
       <Filter>Fichiers sources\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="PieceList.cpp">
+    <ClCompile Include="src\engine\PieceList.cpp">
       <Filter>Fichiers sources\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="DebugUtility.cpp">
+    <ClCompile Include="src\utility\DebugUtility.cpp">
       <Filter>Fichiers sources\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="Perft.cpp">
+    <ClCompile Include="src\testing\Perft.cpp">
       <Filter>Fichiers sources\Testing</Filter>
     </ClCompile>
-    <ClCompile Include="CLI.cpp">
+    <ClCompile Include="src\utility\CLI.cpp">
       <Filter>Fichiers sources\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="Evaluation.cpp">
+    <ClCompile Include="src\ai\Evaluation.cpp">
       <Filter>Fichiers sources\AI</Filter>
     </ClCompile>
-    <ClCompile Include="Search.cpp">
+    <ClCompile Include="src\ai\Search.cpp">
       <Filter>Fichiers sources\AI</Filter>
     </ClCompile>
     <ClCompile Include="src\ai\old\EvaluationOld.cpp">
@@ -132,78 +129,78 @@
     <ClCompile Include="src\ai\old\SearchOld.cpp">
       <Filter>Fichiers sources\AI\old</Filter>
     </ClCompile>
-    <ClCompile Include="Zobrist.cpp">
+    <ClCompile Include="src\utility\Zobrist.cpp">
       <Filter>Fichiers sources\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="TranspositionTable.cpp">
+    <ClCompile Include="src\engine\TranspositionTable.cpp">
+      <Filter>Fichiers sources\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\Game.cpp">
       <Filter>Fichiers sources\Engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Graphic.h">
+    <ClInclude Include="src\graphics\Graphic.h">
       <Filter>Fichiers d%27en-tête\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Palette.h">
+    <ClInclude Include="src\graphics\Palette.h">
       <Filter>Fichiers d%27en-tête\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Fen.h">
+    <ClInclude Include="src\utility\Fen.h">
       <Filter>Fichiers d%27en-tête\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Board.h">
+    <ClInclude Include="src\engine\Board.h">
       <Filter>Fichiers d%27en-tête\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="MoveGenerator.h">
+    <ClInclude Include="src\engine\MoveGenerator.h">
       <Filter>Fichiers d%27en-tête\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="PreComputedMoveData.h">
+    <ClInclude Include="src\engine\PreComputedMoveData.h">
       <Filter>Fichiers d%27en-tête\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Piece.h">
+    <ClInclude Include="src\engine\Piece.h">
       <Filter>Fichiers d%27en-tête\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Game.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="Coord.h">
+    <ClInclude Include="src\graphics\Coord.h">
       <Filter>Fichiers d%27en-tête\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Geometry.h">
+    <ClInclude Include="src\graphics\Geometry.h">
       <Filter>Fichiers d%27en-tête\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Move.h">
+    <ClInclude Include="src\engine\Move.h">
       <Filter>Fichiers d%27en-tête\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Timer.h">
+    <ClInclude Include="src\graphics\Timer.h">
       <Filter>Fichiers d%27en-tête\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Animation.h">
+    <ClInclude Include="src\graphics\Animation.h">
       <Filter>Fichiers d%27en-tête\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Audio.h">
+    <ClInclude Include="src\audio\Audio.h">
       <Filter>Fichiers d%27en-tête\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Profiler.h">
+    <ClInclude Include="src\utility\Profiler.h">
       <Filter>Fichiers d%27en-tête\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="BoardRepresentation.h">
+    <ClInclude Include="src\utility\BoardRepresentation.h">
       <Filter>Fichiers d%27en-tête\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="PieceList.h">
+    <ClInclude Include="src\engine\PieceList.h">
       <Filter>Fichiers d%27en-tête\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="DebugUtility.h">
+    <ClInclude Include="src\utility\DebugUtility.h">
       <Filter>Fichiers d%27en-tête\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Perft.h">
+    <ClInclude Include="src\testing\Perft.h">
       <Filter>Fichiers d%27en-tête\Testing</Filter>
     </ClInclude>
-    <ClInclude Include="CLI.h">
+    <ClInclude Include="src\utility\CLI.h">
       <Filter>Fichiers d%27en-tête\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Evaluation.h">
+    <ClInclude Include="src\ai\Evaluation.h">
       <Filter>Fichiers d%27en-tête\AI</Filter>
     </ClInclude>
-    <ClInclude Include="Search.h">
+    <ClInclude Include="src\ai\Search.h">
       <Filter>Fichiers d%27en-tête\AI</Filter>
     </ClInclude>
     <ClInclude Include="src\ai\old\EvaluationOld.h">
@@ -212,10 +209,13 @@
     <ClInclude Include="src\ai\old\SearchOld.h">
       <Filter>Fichiers d%27en-tête\AI\old</Filter>
     </ClInclude>
-    <ClInclude Include="Zobrist.h">
+    <ClInclude Include="src\utility\Zobrist.h">
       <Filter>Fichiers d%27en-tête\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="TranspositionTable.h">
+    <ClInclude Include="src\engine\TranspositionTable.h">
+      <Filter>Fichiers d%27en-tête\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine\Game.h">
       <Filter>Fichiers d%27en-tête\Engine</Filter>
     </ClInclude>
   </ItemGroup>
