@@ -36,7 +36,6 @@ void CLI::run() {
 
 		cin >> token;
 
-		// TODO: add undo redo and reset
 		if (token == "quit" || token == "q") {
 			quit = true;
 		}
@@ -58,6 +57,9 @@ void CLI::run() {
 		}
 		else if (token == "undo") {
 			undoMove();
+		}
+		else if (token == "reset" || token == "r") {
+			mpBoard->reset();
 		}
 		else if (token == "fen") {
 			string fenStr = "";
@@ -90,7 +92,7 @@ void CLI::loadFen(string str) {
 }
 
 void CLI::makeMove(string str) {
-	list<Move> moves = mMoveGenerator.generateLegalMove(mpBoard);
+	vector<Move> moves = mMoveGenerator.generateLegalMove(mpBoard);
 
 	Move requestedMove = BoardRepresentation::getMoveFromString(str);
 
@@ -115,7 +117,7 @@ void CLI::undoMove() {
 }
 
 void CLI::displayLegalMove() {
-	list<Move> moves = mMoveGenerator.generateLegalMove(mpBoard);
+	vector<Move> moves = mMoveGenerator.generateLegalMove(mpBoard);
 
 	for (Move move : moves) {
 		cout << BoardRepresentation::getMoveString(move) << " ";

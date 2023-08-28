@@ -39,8 +39,8 @@ void MoveGenerator::resetAttackData() {
 	}
 }
 
-list<Move> MoveGenerator::generateLegalMove(Board* pBoard) {
-	mProfiler.startMeasure();
+vector<Move> MoveGenerator::generateLegalMove(Board* pBoard) {
+	//mProfiler.startMeasure();
 
 	mpBoard = pBoard;
 

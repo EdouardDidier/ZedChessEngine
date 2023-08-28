@@ -143,7 +143,7 @@ void Graphic::drawHighlightSquares(vector<int> *highlightSquares) { //TODO: Not 
 	}
 }
 
-void Graphic::drawHints(list<Move> moves, int *squares) {
+void Graphic::drawHints(vector<Move> moves, int *squares) {
 	for (Move move : moves) {
 
 		Coord coord = Coord(move.getTargetSquare());

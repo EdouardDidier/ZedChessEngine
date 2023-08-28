@@ -36,14 +36,14 @@ public:
 	Move(int startSquare, int targetSquare);
 	Move(int startSquare, int targetSquare, int flag);
 
-	int getStartSquare();
-	int getTargetSquare();
+	int getStartSquare() const;
+	int getTargetSquare() const;
 
-	int getFlag();
+	int getFlag() const;
 
-	bool isEnPassant();
-	bool isCastle();
-	bool isPromotion();
+	bool isEnPassant() const;
+	bool isCastle() const;
+	bool isPromotion() const;
 
 	static Move getCastleRookMove(Move move);
 

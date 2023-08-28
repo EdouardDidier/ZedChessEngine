@@ -19,6 +19,7 @@ Game::Game(Board *pBoard) {
 	}
 
 	mSearchWhite.init(mpBoard);
+	mSearchV3.init(mpBoard);
 	mSearchBlack.init(mpBoard);
 }
 
@@ -137,7 +138,7 @@ void Game::run()
 		mGraphic.update();
 		
 		// Handle IA play
-		if ((false && mpBoard->colourToMove == Piece::black) && !mIsGameOver) {
+		if ((0 || mpBoard->colourToMove == Piece::black) && !mIsGameOver && !mIsPaused) {
 			delay += (Uint64)elapsed;
 			if (delay > 200) {
 				iaPlay();
@@ -175,7 +176,7 @@ bool Game::handleUserEvents() {
 	return false;
 }
 
-bool Game::handleGeneralEvents(SDL_Event e, int x, int y) {
+bool Game::handleGeneralEvents(SDL_Event &e, int x, int y) {
 
 	switch (e.type) {
 	case SDL_QUIT:
@@ -202,7 +203,7 @@ bool Game::handleGeneralEvents(SDL_Event e, int x, int y) {
 	return false;
 }
 
-void Game::handleGameEvents(SDL_Event e, Uint32 pMouseState, const Uint8 *pKeyboardState, int x, int y) {
+void Game::handleGameEvents(SDL_Event &e, Uint32 pMouseState, const Uint8 *pKeyboardState, int x, int y) {
 	switch (e.type) {
 	case SDL_KEYDOWN:
 		switch (e.key.keysym.sym)
@@ -214,10 +215,6 @@ void Game::handleGameEvents(SDL_Event e, Uint32 pMouseState, const Uint8 *pKeybo
 			redoMove();
 			break;
 		case SDLK_r:
-			delete mpBoard;
-
-			mpBoard = new Board();
-
 			mPromotionMove = Move(0);
 
 			unSelectSquare();
@@ -226,8 +223,11 @@ void Game::handleGameEvents(SDL_Event e, Uint32 pMouseState, const Uint8 *pKeybo
 			mIsGameOver = false;
 			mIsDraw = false;
 
-			mpBoard->loadStartPosition(); //TODO: create resest fonction
+			mpBoard->reset();
 			mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
+			break;
+		case SDLK_SPACE:
+			mIsPaused = !mIsPaused;
 			break;
 		}
 	case SDL_MOUSEBUTTONDOWN:
@@ -303,7 +303,7 @@ void Game::handleGameEvents(SDL_Event e, Uint32 pMouseState, const Uint8 *pKeybo
 	}
 }
 
-void Game::handlePromotionMenuEvents(SDL_Event e, int x, int y) {
+void Game::handlePromotionMenuEvents(SDL_Event &e, int x, int y) {
 	switch (e.type) {
 	case SDL_MOUSEBUTTONDOWN:
 		switch (e.button.button) {
@@ -543,11 +543,11 @@ bool Game::iaPlay() {
 	Move move;
 
 	if (mpBoard->colourToMove == Piece::white) {
-		mSearchWhite.searchMove(4);
+		mSearchWhite.searchMove(5);
 		move = mSearchWhite.getBestMove();
 	}
 	else {
-		mSearchBlack.searchMove(3);
+		mSearchBlack.searchMove(6);
 		move = mSearchBlack.getBestMove();
 	}
 

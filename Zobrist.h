@@ -21,7 +21,7 @@ public:
 	static Uint64 pieceKeys[2][8][64];
 
 	// Zobrist keys for castle rights
-	static Uint64 casleKeys[16];
+	static Uint64 castleKeys[16];
 
 	// Zobrist keys for ep
 	static Uint64 epKeys[8];

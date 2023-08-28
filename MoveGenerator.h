@@ -34,7 +34,7 @@ public:
 	void init();
 	void resetAttackData();
 
-	list<Move> generateLegalMove(Board* pBoard);
+	vector<Move> generateLegalMove(Board* pBoard);
 
 	void addRay(bool *ray, int startSquare, int targetSquare, int direction);
 	void generateSlidingAttackMap();
@@ -61,7 +61,7 @@ public:
 private:
 	PreComputedMoveData mPrecomputedMoveData;
 
-	list<Move> mMoves;
+	vector<Move> mMoves;
 	Board* mpBoard;
 
 	Profiler mProfiler;

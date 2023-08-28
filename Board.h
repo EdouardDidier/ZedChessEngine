@@ -62,6 +62,10 @@ public:
 	const Uint16 whiteCastleMask = whiteCastleKingSideMask & whiteCastleQueenSideMask;
 	const Uint16 blackCastleMask = blackCastleKingSideMask & blackCastleQueenSideMask;
 
+private:
+	PieceList** mAllPieceLists;
+
+public:
 	Board();
 	~Board();
 
@@ -78,11 +82,15 @@ public:
 
 	PieceList *getPieceList(int pieceType, int pieceColour);
 
-	bool isRepetition();
+	bool isRepetition(int maxCount = 3);
+
+	void reset();
 
 	void loadStartPosition();
 	void loadPosition(string fen);
 
 private:
-	PieceList **mAllPieceLists;
+	void createPieceArrays();
+	void deletePieceArrays();
+
 };

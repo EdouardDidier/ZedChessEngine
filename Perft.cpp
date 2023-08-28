@@ -10,7 +10,7 @@ Perft::~Perft() {
 
 void Perft::runTestDivided(Board *pBoard, int depth) {
 	Uint64 total = 0;
-	list<Move> moves = mMoveGenerator.generateLegalMove(pBoard);
+	vector<Move> moves = mMoveGenerator.generateLegalMove(pBoard);
 
 	for (Move move : moves) {
 		pBoard->makeMove(move);
@@ -61,7 +61,7 @@ void Perft::runTestFull(Board* pBoard, int maxDepth) {
 }
 
 Uint64 Perft::perftQuick(Board* pBoard, int depth) {
-	list<Move> moves = mMoveGenerator.generateLegalMove(pBoard);
+	vector<Move> moves = mMoveGenerator.generateLegalMove(pBoard);
 	Uint64 n = 0;
 
 	if (depth == 1)
@@ -77,7 +77,7 @@ Uint64 Perft::perftQuick(Board* pBoard, int depth) {
 }
 
 void Perft::perftFull(Board* pBoard, int depth) {
-	list<Move> moves = mMoveGenerator.generateLegalMove(pBoard);
+	vector<Move> moves = mMoveGenerator.generateLegalMove(pBoard);
 
 	if (depth == 0)
 		return;

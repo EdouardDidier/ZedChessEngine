@@ -2,7 +2,7 @@
 
 Uint64 Zobrist::sideToMoveKey;
 Uint64 Zobrist::pieceKeys[2][8][64];
-Uint64 Zobrist::casleKeys[16];
+Uint64 Zobrist::castleKeys[16];
 Uint64 Zobrist::epKeys[8];
 mt19937_64 Zobrist::mGen64;
 
@@ -25,7 +25,7 @@ void Zobrist::init() {
 
 	// Initializing castle keys
 	for (int i = 0; i < 16; i++) {
-		casleKeys[i] = mGen64();
+		castleKeys[i] = mGen64();
 	}
 
 	// Initializing ep keys
@@ -51,7 +51,7 @@ Uint64 Zobrist::calculateKey(Board *pBoard) {
 	}
 
 	// Castle
-	key ^= casleKeys[pBoard->currentGameState & 0b1111];
+	key ^= castleKeys[pBoard->currentGameState & 0b1111];
 
 	// Ep
 	int epIndex = ((pBoard->currentGameState >> 4) & 0b1111) - 1;

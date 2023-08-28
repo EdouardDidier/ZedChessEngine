@@ -59,4 +59,30 @@ private:
 	int numNodes;
 };
 
+class SearchV3
+{
+public:
+	SearchV3();
+	~SearchV3();
 
+	void init(Board* pBoard);
+
+	void searchMove(int depthLeft);
+	int alphaBeta(int alpha, int beta, int depthLeft);
+
+	Move getBestMove();
+	int getEval();
+
+private:
+	Profiler mProfiler;
+
+	Board* mpBoard;
+	EvaluationV3 mEvaluation;
+	MoveGenerator mMoveGenerator;
+
+	Move mBestMove;
+	int mEval;
+
+	// Diagnostics variables
+	int numNodes;
+};

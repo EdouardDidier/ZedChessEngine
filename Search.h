@@ -1,42 +1,54 @@
 #pragma once
 
 #include <iostream>
-#include <list>
+#include <vector>
 
 #include "Board.h"
 #include "MoveGenerator.h"
 
 #include "Evaluation.h"
+#include "TranspositionTable.h"
 
 #include "Profiler.h"
 
 using namespace std;
 
-class Search
+class SearchV4
 {
 public:
-	Search();
-	~Search();
+	SearchV4();
+	~SearchV4();
 
 	void init(Board *pBoard);
 
 	void searchMove(int depthLeft);
-	int alphaBeta(int alpha, int beta, int depthLeft);
+	int alphaBeta(int alpha, int beta, int depthLeft, int plyCount);
 	
 	Move getBestMove();
 	int getEval();
+
+	static int getPieceValue(int pieceType);
+
+private:
+	void orderMove(vector<Move>& moves);
+	void swapMoves(vector<Move>& moves, int* moveScores, int firstIndex, int secondIndex);
+	int partitionMoves(vector<Move>& moves, int* moveScores, int start, int end);
+	void quickSortMoves(vector<Move>& moves, int* moveScores, int start, int end);
 
 private:
 	Profiler mProfiler;
 
 	Board *mpBoard;
-	Evaluation mEvaluation;
+	EvaluationV4 mEvaluation;
 	MoveGenerator mMoveGenerator;
+
+	TranspositionTable mTranspositionTable;
 
 	Move mBestMove;
 	int mEval;
 
 	// Diagnostics variables
 	int numNodes;
+	int numCutoffs;
 };
 

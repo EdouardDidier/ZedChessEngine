@@ -17,67 +17,13 @@ Board::Board() {
 	moveCount = 1;
 	fiftyMoveCounter = 0;
 
-	// Allocating memory for list of pieces
-	kings = new int[2];
-
-	queens = new PieceList *[2];
-	rooks = new PieceList *[2];
-	bishops = new PieceList *[2];
-	knights = new PieceList *[2];
-	pawns = new PieceList *[2];
-	PieceList **emptyPieceList = new PieceList *[2];
-	
-	for (int i = 0; i < 2; i++) {
-		queens[i] = new PieceList(9);
-		rooks[i] = new PieceList(10);
-		bishops[i] = new PieceList(10);
-		knights[i] = new PieceList(10);
-		pawns[i] = new PieceList(8);
-		emptyPieceList[i] = new PieceList(0);
-	}
-
-	mAllPieceLists = new PieceList *[16] {
-		emptyPieceList[whiteIndex],
-		emptyPieceList[whiteIndex],
-		pawns[whiteIndex],
-		knights[whiteIndex],
-		emptyPieceList[whiteIndex],
-		bishops[whiteIndex],
-		rooks[whiteIndex],
-		queens[whiteIndex],
-		emptyPieceList[blackIndex],
-		emptyPieceList[blackIndex],
-		pawns[blackIndex],
-		knights[blackIndex],
-		emptyPieceList[blackIndex],
-		bishops[blackIndex],
-		rooks[blackIndex],
-		queens[blackIndex]
-	};
+	createPieceArrays();
 }
 
 Board::~Board() {
 	delete squares;
-
-	// Clearing memory for list of pieces
-	for (int i = 0; i < 2; i++) {
-		delete queens[i];
-		delete rooks[i];
-		delete bishops[i];
-		delete knights[i];
-		delete pawns[i];
-		delete mAllPieceLists[i * 8];
-	}
-
-	delete kings;
-
-	delete queens;
-	delete rooks;
-	delete bishops;
-	delete knights;
-	delete pawns;
-
-	delete mAllPieceLists;
+	
+	deletePieceArrays();
 }
 
 void Board::makeMove(Move move, bool eraseMoveToRedo) {
@@ -216,8 +162,8 @@ void Board::makeMove(Move move, bool eraseMoveToRedo) {
 
 	// Updating castle state in Zobrist key if needed
 	if (newCastleState != oldCastleState) {
-		zobristKey ^= Zobrist::casleKeys[oldCastleState]; // Removing old castle rights
-		zobristKey ^= Zobrist::casleKeys[newCastleState]; // Adding new castle rights
+		zobristKey ^= Zobrist::castleKeys[oldCastleState]; // Removing old castle rights
+		zobristKey ^= Zobrist::castleKeys[newCastleState]; // Adding new castle rights
 	}
 
 	currentGameState |= (Uint32)newCastleState;
@@ -370,26 +316,35 @@ PieceList *Board::getPieceList(int pieceType, int pieceColour) {
 	return mAllPieceLists[pieceType + pieceColour - 8];
 }
 
-bool Board::isRepetition() {
+bool Board::isRepetition(int maxCount) {
 	int count = 0;
 	
 	for (Uint64 key : repetitionHistory) {
 		if (zobristKey == key)
 			count++;
 		
-		if (count == 3) // 3 Because current key is included in the history
+		if (count == maxCount) // 3 Because current key is included in the history
 			return true;
 	}
 
 	return false;
 }
 
-// Load starting position
+void Board::reset() {
+	deletePieceArrays();
+	createPieceArrays();
+
+	gameStateHistory.clear();
+	zobristKeyHistory.clear();
+	repetitionHistory.clear();
+
+	loadStartPosition();
+}
+
 void Board::loadStartPosition() {
 	loadPosition(Fen::fenStartPosition);
 }
 
-// Load a position from a fen input
 void Board::loadPosition(string fen) {
 	Fen::Position position = Fen::positionFromFen(fen);
 
@@ -444,4 +399,66 @@ void Board::loadPosition(string fen) {
 	zobristKey = Zobrist::calculateKey(this);
 	zobristKeyHistory.push_back(zobristKey);
 	repetitionHistory.push_back(zobristKey);
+}
+
+void Board::createPieceArrays() {
+	// Allocating memory for list of pieces
+	kings = new int[2];
+
+	queens = new PieceList * [2];
+	rooks = new PieceList * [2];
+	bishops = new PieceList * [2];
+	knights = new PieceList * [2];
+	pawns = new PieceList * [2];
+	PieceList** emptyPieceList = new PieceList * [2];
+
+	for (int i = 0; i < 2; i++) {
+		queens[i] = new PieceList(9);
+		rooks[i] = new PieceList(10);
+		bishops[i] = new PieceList(10);
+		knights[i] = new PieceList(10);
+		pawns[i] = new PieceList(8);
+		emptyPieceList[i] = new PieceList(0);
+	}
+
+	mAllPieceLists = new PieceList * [16] {
+		emptyPieceList[whiteIndex],
+			emptyPieceList[whiteIndex],
+			pawns[whiteIndex],
+			knights[whiteIndex],
+			emptyPieceList[whiteIndex],
+			bishops[whiteIndex],
+			rooks[whiteIndex],
+			queens[whiteIndex],
+			emptyPieceList[blackIndex],
+			emptyPieceList[blackIndex],
+			pawns[blackIndex],
+			knights[blackIndex],
+			emptyPieceList[blackIndex],
+			bishops[blackIndex],
+			rooks[blackIndex],
+			queens[blackIndex]
+	};
+}
+
+void Board::deletePieceArrays() {
+	// Clearing memory for list of pieces
+	for (int i = 0; i < 2; i++) {
+		delete queens[i];
+		delete rooks[i];
+		delete bishops[i];
+		delete knights[i];
+		delete pawns[i];
+		delete mAllPieceLists[i * 8];
+	}
+
+	delete kings;
+
+	delete queens;
+	delete rooks;
+	delete bishops;
+	delete knights;
+	delete pawns;
+
+	delete mAllPieceLists;
 }

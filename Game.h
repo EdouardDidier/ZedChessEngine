@@ -37,9 +37,9 @@ public:
 
 	void run();
 	bool handleUserEvents();
-	bool handleGeneralEvents(SDL_Event e, int x, int y);
-	void handleGameEvents(SDL_Event e, Uint32 pMouseState, const Uint8 *pKeyboardState, int x, int y);
-	void handlePromotionMenuEvents(SDL_Event e, int x, int y);
+	bool handleGeneralEvents(SDL_Event &e, int x, int y);
+	void handleGameEvents(SDL_Event &e, Uint32 pMouseState, const Uint8 *pKeyboardState, int x, int y);
+	void handlePromotionMenuEvents(SDL_Event &e, int x, int y);
 
 	void selectSquare(int startSquare);
 	void unSelectSquare(int typeHighlight = -1);
@@ -79,12 +79,13 @@ private:
 	vector<int> mHighlightSquares[PALETTE_HIGHLIGHT_SIZE];
 
 	Board* mpBoard;
-	Search mSearchWhite;
-	SearchV1 mSearchBlack;
+	SearchV3 mSearchWhite;
+	SearchV3 mSearchV3;
+	SearchV4 mSearchBlack;
 
 	MoveGenerator mMoveGenerator;
-	list<Move> mLegalMoves;
-	list<Move> mPossibleMoves;
+	vector<Move> mLegalMoves;
+	vector<Move> mPossibleMoves;
 
 	int mSelectedSquare = -1;
 	int mDraggedPiece = -1;
@@ -98,6 +99,7 @@ private:
 
 	bool mIsGameOver = false;
 	bool mIsDraw = false;
+	bool mIsPaused = false;
 
 	bool mDebugMode = false;
 	int mAttackedSquareSelector = 0;

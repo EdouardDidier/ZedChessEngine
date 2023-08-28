@@ -51,7 +51,7 @@ public:
 	void drawBoard();
 	void drawCoordinate();
 	void drawHighlightSquares(vector<int>* highlightSquares);
-	void drawHints(list<Move> moves, int* squares);
+	void drawHints(vector<Move> moves, int* squares);
 	void drawHoverSquare(Coord coord);
 	void drawPieces(int* squares, list<Animation> *animations, int draggedPiece, int pieceToPromote);
 

@@ -12,27 +12,27 @@ Move::Move(int startSquare, int targetSquare, int flag) {
 	moveValue = (Uint16)(startSquare | targetSquare << 6 | flag << 12);
 }
 
-int Move::getStartSquare() {
+int Move::getStartSquare() const {
 	return moveValue & startSquareMask;
 }
 
-int Move::getTargetSquare() {
+int Move::getTargetSquare() const {
 	return (moveValue & targetSquareMask) >> 6;
 }
 
-int Move::getFlag() {
+int Move::getFlag() const {
 	return moveValue >> 12;
 }
 
-bool Move::isEnPassant() {
+bool Move::isEnPassant() const {
 	return this->getFlag() == Move::Flag::enPassantCapture;
 }
 
-bool Move::isCastle() {
+bool Move::isCastle() const {
 	return this->getFlag() == Move::Flag::castling;
 }
 
-bool Move::isPromotion() {
+bool Move::isPromotion() const {
 	int flag = this->getFlag();
 	return flag == Move::Flag::promoteToQueen || flag == Move::Flag::promoteToRook || flag == Move::Flag::promoteToBishop || flag == Move::Flag::promoteToKnight;
 }
