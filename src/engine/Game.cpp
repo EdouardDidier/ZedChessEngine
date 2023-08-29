@@ -60,6 +60,8 @@ void Game::run()
 	bool quit = false;
 	Uint64 delay = 0;
 
+	mAudio.playSound(Audio::gameStart);
+
 	while (!quit)
 	{
 		float elapsed = mTimer.getElapsedTime();
@@ -137,7 +139,7 @@ void Game::run()
 		mGraphic.update();
 		
 		// Handle IA play
-		if ((1 || mpBoard->colourToMove == Piece::black) && !mIsGameOver && !mIsPaused) {
+		if ((0 || mpBoard->colourToMove == Piece::black) && !mIsGameOver && !mIsPaused) {
 			delay += (Uint64)elapsed;
 			if (delay > 200) {
 				iaPlay();
@@ -441,8 +443,6 @@ bool Game::makeMove(Move move) {
 
 	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
 
-	playSound(move, targetPiece, mMoveGenerator.inCheck);
-
 	// Checking if game is over
 	if (mpBoard->isRepetition()) {
 		mIsGameOver = true;
@@ -455,6 +455,8 @@ bool Game::makeMove(Move move) {
 		if (!mMoveGenerator.inCheck)
 			mIsDraw = true;
 	}
+
+	playSound(move, targetPiece, mMoveGenerator.inCheck);
 
 	selectSquare(mSelectedSquare);
 
@@ -616,9 +618,13 @@ void Game::clearHighlightSquares(int type) {
 }
 
 void Game::playSound(Move move, int targetPiece, bool inCheck) {
-	if (inCheck)
-		mAudio.playSound(Audio::moveCheck);
-	else if (move.isPromotion()) 
+	if (inCheck) {
+		if (mIsGameOver)
+			mAudio.playSound(Audio::gameEnd);
+		else
+			mAudio.playSound(Audio::moveCheck);
+	}
+	else if (move.isPromotion())
 		mAudio.playSound(Audio::promote);
 	else if ((targetPiece != Piece::none)
 		|| move.isEnPassant())
