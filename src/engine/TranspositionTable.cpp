@@ -26,7 +26,7 @@ void TranspositionTable::storeEvaluation(int v, int d, TableEntryType t, Move m)
 	}
 	
 	if (d > mTable[index].depth) {
-		stats.numRewrites++;
+		stats.numOverwrites++;
 		mTable[index] = TableEntry(mpBoard->zobristKey, t, v, d, m);
 	}
 }
@@ -48,17 +48,17 @@ int TranspositionTable::getEvaluation(int alpha, int beta, int d) {
 		return invalidEval;
 
 	if (entry.type == exact) {
-		stats.numTranspositions++;
+		stats.numHits++;
 		return entry.value;
 	}
 
 	if (entry.type == upperBound && entry.value <= alpha) {
-		stats.numTranspositions++;
+		stats.numHits++;
 		return entry.value;
 	}
 
 	if (entry.type == lowerBound && entry.value >= beta) {
-		stats.numTranspositions++;
+		stats.numHits++;
 		return entry.value;
 	}
 

@@ -234,6 +234,8 @@ void Game::handleGameEvents(SDL_Event &e, Uint32 pMouseState, const Uint8 *pKeyb
 			break;
 		}
 	case SDL_MOUSEBUTTONDOWN:
+		mHoverSquare = Coord(getBoardCoord(y, x));
+
 		switch (e.button.button) {
 		case SDL_BUTTON_LEFT:
 		{

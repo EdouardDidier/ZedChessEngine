@@ -47,6 +47,8 @@ private:
 	Move mBestMove;
 	int mEval;
 
+	Move *mMoveSequence;
+
 	// Diagnostics variables
 	int numNodes;
 	int numCutoffs;

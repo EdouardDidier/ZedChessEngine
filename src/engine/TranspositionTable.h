@@ -28,9 +28,9 @@ public:
 
 	struct TableStats {
 		int numMisses = 0;
-		int numTranspositions = 0;
+		int numHits = 0;
 		int numWrites = 0;
-		int numRewrites = 0;
+		int numOverwrites = 0;
 	};
 
 public:

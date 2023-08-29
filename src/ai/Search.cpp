@@ -3,13 +3,15 @@
 SearchV4::SearchV4() {
 	srand((unsigned)time(NULL));
 
-	mBestMove = Move(0);
+	mBestMove = Move::invalidMove();
 	mEval = 0;
 
 	mpBoard = NULL;
 
 	numNodes = 0;
 	numCutoffs = 0;
+
+	mMoveSequence = NULL;
 }
 
 SearchV4::~SearchV4() {
@@ -25,22 +27,32 @@ void SearchV4::searchMove(int depthLeft) {
 	numNodes = 0;
 	numCutoffs = 0;
 
-	mTranspositionTable.resetStats();
+	mMoveSequence = new Move[depthLeft];
 
+	mTranspositionTable.resetStats();
 	mProfiler.startMeasure();
+
+	cout << endl << "[AlphaBeta] Searching at depth " << depthLeft << " ..." << endl;
 
 	alphaBeta(INT_MIN + 1, INT_MAX, depthLeft, 0);
 
-	cout << "AlphaBeta (Depth: " << depthLeft << ")\t| Best move: " << BoardRepresentation::getMoveString(mBestMove) << " (Eval: " << mEval << ")\t";
-	cout << "| Time: " << (double)mProfiler.endMeasure() / 1000.0 << "s (Avg: " << (double)mProfiler.getAverage() / 1000.0 << "s)" << endl;
+	cout << "Move sequence: ";
+	for (int i = 0; i < depthLeft; i++)
+		cout << (mMoveSequence[i].isInvalid() ? "Null" : BoardRepresentation::getMoveString(mMoveSequence[i])) << ((i != depthLeft - 1) ? " | " : "");
+	cout << endl;
+
+	cout << "Eval: " << mEval << "\t";
+	cout << "| Time: " << (double)mProfiler.endMeasure() / 1000.0 << "s (Avg: " << (double)mProfiler.getAverage() / 1000.0 << "s)\t";
 	cout << "| Nodes: " << numNodes << "\t| Cutoffs: " << numCutoffs << endl;
 
 	TranspositionTable::TableStats tableStats = mTranspositionTable.stats;
-	cout << "Transpositiosn stats:" << endl;
-	cout << "| Transpositions: " << tableStats.numTranspositions << endl;
+	cout << "Transpositions stats:" << endl;
+	cout << "| Hits: " << tableStats.numHits << endl;
 	cout << "| Misses: " << tableStats.numMisses << endl;
 	cout << "| Writes: " << tableStats.numWrites << endl;
-	cout << "| Rewrites: " << tableStats.numRewrites << endl << endl;
+	cout << "| Overwrites: " << tableStats.numOverwrites << endl << endl;
+
+	delete[] mMoveSequence;
 }
 
 int SearchV4::alphaBeta(int alpha, int beta, int depthLeft, int plyCount) {
@@ -99,6 +111,8 @@ int SearchV4::alphaBeta(int alpha, int beta, int depthLeft, int plyCount) {
 				mBestMove = move;
 				mEval = score;
 			}
+
+			mMoveSequence[plyCount] = move;
 		}
 	}
 
