@@ -9,6 +9,8 @@ MoveGenerator::MoveGenerator() {
 	friendlyColourIndex = 0;
 	opponentColourIndex = 1;
 
+	mCapturedOnly = false;
+
 	resetAttackData();
 }
 
@@ -39,10 +41,11 @@ void MoveGenerator::resetAttackData() {
 	}
 }
 
-vector<Move> MoveGenerator::generateLegalMove(Board* pBoard) {
+vector<Move> MoveGenerator::generateLegalMove(Board* pBoard, bool capturedOnly) {
 	//mProfiler.startMeasure();
 
 	mpBoard = pBoard;
+	mCapturedOnly = capturedOnly;
 
 	init();
 
@@ -53,6 +56,7 @@ vector<Move> MoveGenerator::generateLegalMove(Board* pBoard) {
 
 	generateKingMoves();
 
+	// In case of double checks, only kings moves are allowed (other move would remove only one of the checks)
 	if (inDoubleCheck)
 		return mMoves;
 
@@ -220,6 +224,9 @@ void MoveGenerator::generateKingMoves() {
 
 		bool isCapture = Piece::isColour(mpBoard->getPiece(targetSquare), opponentColour);
 
+		if (mCapturedOnly && !isCapture)
+			continue;
+
 		// If safe square to move
 		if (!isAttackedSquare(targetSquare)) {
 			mMoves.push_back(Move(startSquare, targetSquare));
@@ -268,34 +275,36 @@ void MoveGenerator::generatePawnMove() {
 	
 	for (int i = 0 ; i < mpBoard->pawns[friendlyColourIndex]->count(); i++) {
 		int startSquare = (*mpBoard->pawns[friendlyColourIndex])[i];
-
-		int squareForward = startSquare + offset;
 		int pawnRank = startSquare / 8;
 		bool oneRankToPromotion = pawnRank == finalRankBeforePromotion;
 
-		if (mpBoard->getPiece(squareForward) == Piece::none) {
-			// If pawn isn't pinned or moving in the check ray
-			if (!isPinned(startSquare) || isMovingInRay(startSquare, mpBoard->kings[friendlyColourIndex], offset)) {
-				
-				// If king not in check or preventing the check
-				if (!inCheck || isInCheckRay(squareForward)) {
-					// If reaching the top, adding promotions moves
-					if (oneRankToPromotion) {
-						makePromotionMoves(startSquare, squareForward);
-					}
-					else {
-						mMoves.push_back(Move(startSquare, squareForward));
-					}
-				}
+		if (!mCapturedOnly) {
+			int squareForward = startSquare + offset;
 
-				// Handeling starting position (2 square forward moves)
-				if ((pawnRank) == startRank) {
-					int squareTwoForward = squareForward + offset;
+			if (mpBoard->getPiece(squareForward) == Piece::none) {
+				// If pawn isn't pinned or moving in the check ray
+				if (!isPinned(startSquare) || isMovingInRay(startSquare, mpBoard->kings[friendlyColourIndex], offset)) {
 
-					if (mpBoard->getPiece(squareTwoForward) == Piece::none) {
-						// If king not in check or preventing the check
-						if (!inCheck || isInCheckRay(squareTwoForward)) {
-							mMoves.push_back(Move(startSquare, squareTwoForward, Move::Flag::pawnTwoForward));
+					// If king not in check or preventing the check
+					if (!inCheck || isInCheckRay(squareForward)) {
+						// If reaching the top, adding promotions moves
+						if (oneRankToPromotion) {
+							makePromotionMoves(startSquare, squareForward);
+						}
+						else {
+							mMoves.push_back(Move(startSquare, squareForward));
+						}
+					}
+
+					// Handeling starting position (2 square forward moves)
+					if ((pawnRank) == startRank) {
+						int squareTwoForward = squareForward + offset;
+
+						if (mpBoard->getPiece(squareTwoForward) == Piece::none) {
+							// If king not in check or preventing the check
+							if (!inCheck || isInCheckRay(squareTwoForward)) {
+								mMoves.push_back(Move(startSquare, squareTwoForward, Move::Flag::pawnTwoForward));
+							}
 						}
 					}
 				}
@@ -373,10 +382,13 @@ void MoveGenerator::generateSlidingPieceMoves(int startSquare, int startIndex, i
 			if (Piece::isColour(targetPiece, friendlyColour))
 				break;
 
-			// Add the move if king no in check or if it prevent check
+			// Add the move if king not in check or if it prevents check
 			bool preventCheck = isInCheckRay(targetSquare);
-			if (!inCheck || preventCheck)
-				mMoves.push_back(Move(startSquare, targetSquare));
+			if (!inCheck || preventCheck) {
+				if (!mCapturedOnly || targetPiece != Piece::none) {
+					mMoves.push_back(Move(startSquare, targetSquare));
+				}
+			}
 
 			// If captured piece or if the move prevent check stop looking further in that direction 
 			if (Piece::isColour(targetPiece, opponentColour) || preventCheck)
@@ -395,8 +407,14 @@ void MoveGenerator::generateKnightMoves() {
 		}
 
 		for (int targetSquare : mPrecomputedMoveData.knightMoves[startSquare]) {
+			int targetPiece = mpBoard->getPiece(targetSquare);
+
 			// If friendly colour, skip the move
-			if (Piece::isColour(mpBoard->getPiece(targetSquare), friendlyColour))
+			if (Piece::isColour(targetPiece, friendlyColour))
+				continue;
+
+			// If capture only, skip if not captured piece
+			if (mCapturedOnly && targetPiece == Piece::none)
 				continue;
 
 			// If in check and knight moving to a check ray, skip the move

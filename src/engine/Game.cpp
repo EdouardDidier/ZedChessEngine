@@ -45,7 +45,7 @@ bool Game::init()
 	mHoverSquare = Coord();
 
 	// Generate first set of legal moves
-	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
+	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard, mCapturedOnly);
 
 	return true;
 }
@@ -198,6 +198,12 @@ bool Game::handleGeneralEvents(SDL_Event &e, int x, int y) {
 			mAttackedSquareSelector++;
 			if (mAttackedSquareSelector > 2) mAttackedSquareSelector = 0;
 			break;
+		case SDLK_KP_9:
+			mCapturedOnly = !mCapturedOnly;
+			mLegalMoves.clear();
+			mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard, mCapturedOnly);
+			selectSquare(mSelectedSquare);
+			break;
 		}
 	}
 
@@ -227,7 +233,7 @@ void Game::handleGameEvents(SDL_Event &e, Uint32 pMouseState, const Uint8 *pKeyb
 			mIsDraw = false;
 
 			mpBoard->reset();
-			mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
+			mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard, mCapturedOnly);
 			break;
 		case SDLK_SPACE:
 			mIsPaused = !mIsPaused;
@@ -445,7 +451,7 @@ bool Game::makeMove(Move move) {
 
 	mpBoard->makeMove(move);
 
-	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
+	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard, mCapturedOnly);
 
 	// Checking if game is over
 	if (mpBoard->isRepetition()) {
@@ -502,7 +508,7 @@ bool Game::redoMove() {
 
 	mAnimations.push_back(Animation(&mGraphic, Move(move.moveValue), animatedPiece, targetPiece));	// Starting animation
 
-	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
+	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard, mCapturedOnly);
 
 	playSound(move, targetPiece, mMoveGenerator.inCheck);
 
@@ -529,7 +535,7 @@ bool Game::undoMove() {
 
 	mAnimations.push_back(Animation(&mGraphic, Move(move.getTargetSquare(), move.getStartSquare()), animatedPiece, targetPiece));	// Starting animation
 
-	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard);
+	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard, mCapturedOnly);
 
 	playSound(move, targetPiece, mMoveGenerator.inCheck);
 

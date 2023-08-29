@@ -13,6 +13,7 @@ SearchV5::SearchV5() {
 
 	numNodes = 0;
 	numCutoffs = 0;
+	numCaptureNodes = 0;
 
 	mMoveSequence = NULL;
 }
@@ -30,6 +31,7 @@ void SearchV5::searchMove(int maxDepth) {
 	// Reset diagnostics datas
 	numNodes = 0;
 	numCutoffs = 0;
+	numCaptureNodes = 0;
 
 	mTranspositionTable.resetStats();
 	mProfiler.startMeasure();
@@ -58,7 +60,7 @@ void SearchV5::searchMove(int maxDepth) {
 	// Displayinng results
 	cout << endl << "Generals stats:" << endl;
 	cout << "| Time: " << (double)mProfiler.endMeasure() / 1000.0 << "s (Avg: " << (double)mProfiler.getAverage() / 1000.0 << "s)\t";
-	cout << "| Nodes: " << numNodes << "\t| Cutoffs: " << numCutoffs << endl << endl;
+	cout << "| Nodes: " << numNodes << "\t| Cutoffs: " << numCutoffs << "\t| Captured nodes: " << numCaptureNodes << endl << endl;
 
 	TranspositionTable::TableStats tableStats = mTranspositionTable.stats;
 	cout << "Transpositions stats:" << endl;
@@ -89,7 +91,7 @@ int SearchV5::alphaBeta(int alpha, int beta, int depthLeft, int plyCount) {
 	}
 	
 	if (depthLeft == 0)
-		return mEvaluation.evaluate(mpBoard);
+		return quiescenceSearch(alpha, beta);
 
 	vector<Move> moves = mMoveGenerator.generateLegalMove(mpBoard);
 	orderMove(moves);
@@ -134,6 +136,40 @@ int SearchV5::alphaBeta(int alpha, int beta, int depthLeft, int plyCount) {
 	}
 
 	mTranspositionTable.storeEvaluation(alpha, depthLeft, evalType, bestMoveInPosition);
+
+	return alpha;
+}
+
+int SearchV5::quiescenceSearch(int alpha, int beta) {
+	// Making a first eval to avoid bad capture, accepting potential non-capture move
+	int score = mEvaluation.evaluate(mpBoard);
+
+	if (score >= beta)
+		return beta;
+
+	if (score > alpha)
+		alpha = score;
+
+	vector<Move> moves = mMoveGenerator.generateLegalMove(mpBoard, true);
+	orderMove(moves);
+
+	for (Move move : moves) {
+		mpBoard->makeMove(move);
+		score = -quiescenceSearch(-beta, -alpha);
+		mpBoard->undoMove();
+
+		numNodes++;
+		numCaptureNodes++;
+
+		if (score >= beta) {
+			numCutoffs++;
+			return beta;
+		}
+
+		if (score > alpha) {
+			alpha = score;
+		}
+	}
 
 	return alpha;
 }

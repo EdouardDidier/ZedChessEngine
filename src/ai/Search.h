@@ -23,6 +23,7 @@ public:
 
 	void searchMove(int maxDepth);
 	int alphaBeta(int alpha, int beta, int depthLeft, int plyCount);
+	int quiescenceSearch(int alpha, int beta);
 	
 	Move getBestMove();
 	int getEval();
@@ -55,5 +56,6 @@ private:
 	// Diagnostics variables
 	int numNodes;
 	int numCutoffs;
+	int numCaptureNodes;
 };
 

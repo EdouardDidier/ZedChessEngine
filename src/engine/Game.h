@@ -103,5 +103,6 @@ private:
 	bool mDebugMode = false;
 	int mAttackedSquareSelector = 0;
 	int mDebugOccupiedSelector = 0;
+	bool mCapturedOnly = false;
 };
 

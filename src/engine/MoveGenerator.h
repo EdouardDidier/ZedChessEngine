@@ -34,7 +34,7 @@ public:
 	void init();
 	void resetAttackData();
 
-	vector<Move> generateLegalMove(Board* pBoard);
+	vector<Move> generateLegalMove(Board* pBoard, bool capturedOnly = false);
 
 	void addRay(bool *ray, int startSquare, int targetSquare, int direction);
 	void generateSlidingAttackMap();
@@ -65,5 +65,7 @@ private:
 	Board* mpBoard;
 
 	Profiler mProfiler;
+
+	bool mCapturedOnly;
 };
 
