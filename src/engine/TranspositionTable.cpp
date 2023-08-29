@@ -65,7 +65,7 @@ int TranspositionTable::getEvaluation(int alpha, int beta, int d) {
 	return invalidEval;
 }
 
-Move TranspositionTable::getMove() {
+Move TranspositionTable::getBestMoveOfPosition() {
 	return mTable[mpBoard->zobristKey % mSize].move;
 }
 

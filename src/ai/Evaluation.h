@@ -2,7 +2,7 @@
 
 #include "./src/engine/Board.h"
 
-class EvaluationV4
+class EvaluationV5
 {
 public:	
 	static const int maxEval = 100000;

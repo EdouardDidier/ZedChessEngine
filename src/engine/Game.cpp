@@ -139,7 +139,7 @@ void Game::run()
 		mGraphic.update();
 		
 		// Handle IA play
-		if ((0 || mpBoard->colourToMove == Piece::black) && !mIsGameOver && !mIsPaused) {
+		if ((1 || mpBoard->colourToMove == Piece::black) && !mIsGameOver && !mIsPaused) {
 			delay += (Uint64)elapsed;
 			if (delay > 200) {
 				iaPlay();
@@ -548,7 +548,7 @@ bool Game::iaPlay() {
 	Move move;
 
 	if (mpBoard->colourToMove == Piece::white) {
-		mSearchWhite.searchMove(5);
+		mSearchWhite.searchMove(6);
 		move = mSearchWhite.getBestMove();
 	}
 	else {

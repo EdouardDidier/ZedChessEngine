@@ -13,15 +13,15 @@
 
 using namespace std;
 
-class SearchV4
+class SearchV5
 {
 public:
-	SearchV4();
-	~SearchV4();
+	SearchV5();
+	~SearchV5();
 
 	void init(Board *pBoard);
 
-	void searchMove(int depthLeft);
+	void searchMove(int maxDepth);
 	int alphaBeta(int alpha, int beta, int depthLeft, int plyCount);
 	
 	Move getBestMove();
@@ -39,13 +39,16 @@ private:
 	Profiler mProfiler;
 
 	Board *mpBoard;
-	EvaluationV4 mEvaluation;
+	EvaluationV5 mEvaluation;
 	MoveGenerator mMoveGenerator;
 
 	TranspositionTable mTranspositionTable;
 
 	Move mBestMove;
-	int mEval;
+	int mBestEval;
+
+	Move mBestMoveThisIteration;
+	int mBestEvalThisIteration;
 
 	Move *mMoveSequence;
 

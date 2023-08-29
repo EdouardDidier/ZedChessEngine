@@ -79,8 +79,8 @@ private:
 	vector<int> mHighlightSquares[PALETTE_HIGHLIGHT_SIZE];
 
 	Board* mpBoard;
-	SearchV3 mSearchWhite;
-	SearchV4 mSearchBlack;
+	SearchV4 mSearchWhite;
+	SearchV5 mSearchBlack;
 
 	MoveGenerator mMoveGenerator;
 	vector<Move> mLegalMoves;

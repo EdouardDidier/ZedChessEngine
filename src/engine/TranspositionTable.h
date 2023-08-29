@@ -54,7 +54,7 @@ public:
 	void storeEvaluation(int v, int d, TableEntryType t, Move m);
 	int getEvaluation(int alpha, int beta, int d);
 
-	Move getMove();
+	Move getBestMoveOfPosition();
 	TableEntry getEntry();
 
 	void clear();

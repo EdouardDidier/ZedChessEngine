@@ -1,10 +1,13 @@
 #include "Search.h"
 
-SearchV4::SearchV4() {
+SearchV5::SearchV5() {
 	srand((unsigned)time(NULL));
 
 	mBestMove = Move::invalidMove();
-	mEval = 0;
+	mBestEval = 0;
+
+	mBestMoveThisIteration = mBestMove;
+	mBestEvalThisIteration = mBestEval;
 
 	mpBoard = NULL;
 
@@ -14,36 +17,48 @@ SearchV4::SearchV4() {
 	mMoveSequence = NULL;
 }
 
-SearchV4::~SearchV4() {
+SearchV5::~SearchV5() {
 
 }
 
-void SearchV4::init(Board *pBoard) {
+void SearchV5::init(Board *pBoard) {
 	mpBoard = pBoard;
 	mTranspositionTable.init(pBoard);
 }
 
-void SearchV4::searchMove(int depthLeft) {
+void SearchV5::searchMove(int maxDepth) {
+	// Reset diagnostics datas
 	numNodes = 0;
 	numCutoffs = 0;
-
-	mMoveSequence = new Move[depthLeft];
 
 	mTranspositionTable.resetStats();
 	mProfiler.startMeasure();
 
-	cout << endl << "[AlphaBeta] Searching at depth " << depthLeft << " ..." << endl;
+	// Creating new array to store move sequente (if hit by TT, deeper move are currently not updated)
+	mMoveSequence = new Move[maxDepth + 1];
 
-	alphaBeta(INT_MIN + 1, INT_MAX, depthLeft, 0);
+	cout << endl << "[AlphaBeta] " << (mpBoard->whiteToMove ? "White" : "Black") << " - Searching at depth " << maxDepth << " ..." << endl;
 
-	cout << "Move sequence: ";
-	for (int i = 0; i < depthLeft; i++)
-		cout << (mMoveSequence[i].isInvalid() ? "Null" : BoardRepresentation::getMoveString(mMoveSequence[i])) << ((i != depthLeft - 1) ? " | " : "");
-	cout << endl;
+	// Executing iterative deepening search
+	int currentSearchDepth = 0;
+	for (int depth = 1; depth <= maxDepth; depth++) {
+		currentSearchDepth = depth;
+		alphaBeta(INT_MIN + 1, INT_MAX, depth, 0);
 
-	cout << "Eval: " << mEval << "\t";
+		mBestMove = mBestMoveThisIteration;
+		mBestEval = mBestEvalThisIteration;
+
+		// Displaying moves at each iteration
+		cout << "(Depth: " << depth  << ") Eval: " << mBestEvalThisIteration << "\t| ";
+		for (int i = 0; i < depth; i++)
+			cout << (mMoveSequence[i].isInvalid() ? "Null" : BoardRepresentation::getMoveString(mMoveSequence[i])) << ((i != depth - 1) ? " - " : "");
+		cout << endl;
+	}
+
+	// Displayinng results
+	cout << endl << "Generals stats:" << endl;
 	cout << "| Time: " << (double)mProfiler.endMeasure() / 1000.0 << "s (Avg: " << (double)mProfiler.getAverage() / 1000.0 << "s)\t";
-	cout << "| Nodes: " << numNodes << "\t| Cutoffs: " << numCutoffs << endl;
+	cout << "| Nodes: " << numNodes << "\t| Cutoffs: " << numCutoffs << endl << endl;
 
 	TranspositionTable::TableStats tableStats = mTranspositionTable.stats;
 	cout << "Transpositions stats:" << endl;
@@ -55,18 +70,20 @@ void SearchV4::searchMove(int depthLeft) {
 	delete[] mMoveSequence;
 }
 
-int SearchV4::alphaBeta(int alpha, int beta, int depthLeft, int plyCount) {
-	// If repetition, return draw score (limiting to 1 reptition for simplicity) ???
+int SearchV5::alphaBeta(int alpha, int beta, int depthLeft, int plyCount) {
+	// If repetition, return draw score (limiting to 1 reptition for simplicity) TODO: Check if works correctly with transposition table
 	if (plyCount > 0)
 		if (mpBoard->isRepetition(2))
-			return -1;
+			return 1;
 
 	int ttEval = mTranspositionTable.getEvaluation(alpha, beta, depthLeft);
 	if (ttEval != TranspositionTable::invalidEval) {
 		if (plyCount == 0) {
-			mBestMove = mTranspositionTable.getMove();
-			mEval = ttEval;
+			mBestMoveThisIteration = mTranspositionTable.getBestMoveOfPosition();
+			mBestEvalThisIteration = ttEval;
 		}
+
+		mMoveSequence[plyCount] = mTranspositionTable.getBestMoveOfPosition();
 
 		return ttEval;
 	}
@@ -79,7 +96,7 @@ int SearchV4::alphaBeta(int alpha, int beta, int depthLeft, int plyCount) {
 
 	if (moves.empty()) {
 		if (mMoveGenerator.inCheck)
-			return EvaluationV4::minEval - depthLeft; // Adding a depth to prefer check mates in less moves
+			return EvaluationV5::minEval - depthLeft; // Adding a depth to prefer check mates in less moves
 		else
 			return -1;
 	}
@@ -108,8 +125,8 @@ int SearchV4::alphaBeta(int alpha, int beta, int depthLeft, int plyCount) {
 			alpha = score; // Alpha acts like max in MiniMax
 
 			if (plyCount == 0) {
-				mBestMove = move;
-				mEval = score;
+				mBestMoveThisIteration = move;
+				mBestEvalThisIteration = score;
 			}
 
 			mMoveSequence[plyCount] = move;
@@ -121,17 +138,17 @@ int SearchV4::alphaBeta(int alpha, int beta, int depthLeft, int plyCount) {
 	return alpha;
 }
 
-Move SearchV4::getBestMove() {
+Move SearchV5::getBestMove() {
 	return mBestMove;
 }
 
-int SearchV4::getEval() {
-	return mEval;
+int SearchV5::getEval() {
+	return mBestEval;
 }
 
-void SearchV4::orderMove(vector<Move>& moves) {
+void SearchV5::orderMove(vector<Move>& moves) {
 	int *moveScores = new int[(int)moves.size()];
-	//Move ttMove = Move::invalidMove(); TODO: consider move of transposition table
+	Move ttMove = mTranspositionTable.getBestMoveOfPosition(); //TODO: consider move of transposition table
 
 	// Evaluating moves
 	for (int i = 0; i < moves.size(); i++) {
@@ -141,22 +158,26 @@ void SearchV4::orderMove(vector<Move>& moves) {
 		int flag = moves[i].getFlag();
 
 		if (capturedType != Piece::none) {
-			score = EvaluationV4::capturedMultiplier * getPieceValue(capturedType) - getPieceValue(pieceType);
+			score = EvaluationV5::capturedMultiplier * getPieceValue(capturedType) - getPieceValue(pieceType);
 		}
 
 		if (pieceType == Piece::pawn) {
 			if (flag == Move::Flag::promoteToQueen)
-				score += EvaluationV4::queenValue;
+				score += EvaluationV5::queenValue;
 			else if (flag == Move::Flag::promoteToRook)
-				score += EvaluationV4::rookValue;
+				score += EvaluationV5::rookValue;
 			else if (flag == Move::Flag::promoteToBishop)
-				score += EvaluationV4::bishopValue;
+				score += EvaluationV5::bishopValue;
 			else if (flag == Move::Flag::promoteToKnight)
-				score += EvaluationV4::knightValue;
+				score += EvaluationV5::knightValue;
 		}
 
 		if (mMoveGenerator.isAttackedSquare(moves[i].getTargetSquare())) {
-			score -= EvaluationV4::squareControlledPenality;
+			score -= EvaluationV5::squareControlledPenality;
+		}
+
+		if (Move::isSameMove(moves[i], ttMove)) {
+			score += 10000;
 		}
 
 		// Attributing the move score
@@ -169,7 +190,7 @@ void SearchV4::orderMove(vector<Move>& moves) {
 	delete[] moveScores;
 }
 
-void SearchV4::swapMoves(vector<Move>& moves, int* moveScores, int firstIndex, int secondIndex) {
+void SearchV5::swapMoves(vector<Move>& moves, int* moveScores, int firstIndex, int secondIndex) {
 	Move tmpMove = moves[firstIndex];
 	int tmpScore = moveScores[firstIndex];
 
@@ -180,7 +201,7 @@ void SearchV4::swapMoves(vector<Move>& moves, int* moveScores, int firstIndex, i
 	moveScores[secondIndex] = tmpScore;
 }
 
-int SearchV4::partitionMoves(vector<Move>& moves, int* moveScores, int start, int end) {
+int SearchV5::partitionMoves(vector<Move>& moves, int* moveScores, int start, int end) {
 	int pivot = moveScores[start];
 	
 	int count = 0;
@@ -209,7 +230,7 @@ int SearchV4::partitionMoves(vector<Move>& moves, int* moveScores, int start, in
 	return pivotIndex;
 }
 
-void SearchV4::quickSortMoves(vector<Move>& moves, int *moveScores, int start, int end) {
+void SearchV5::quickSortMoves(vector<Move>& moves, int *moveScores, int start, int end) {
 	if (start >= end)
 		return;
 
@@ -219,18 +240,18 @@ void SearchV4::quickSortMoves(vector<Move>& moves, int *moveScores, int start, i
 	quickSortMoves(moves, moveScores, p + 1, end);
 }
 
-int SearchV4::getPieceValue(int pieceType) {
+int SearchV5::getPieceValue(int pieceType) {
 	switch (pieceType) {
 	case Piece::queen:
-		return EvaluationV4::queenValue;
+		return EvaluationV5::queenValue;
 	case Piece::rook:
-		return EvaluationV4::rookValue;
+		return EvaluationV5::rookValue;
 	case Piece::bishop:
-		return EvaluationV4::bishopValue;
+		return EvaluationV5::bishopValue;
 	case Piece::knight:
-		return EvaluationV4::knightValue;
+		return EvaluationV5::knightValue;
 	case Piece::pawn:
-		return EvaluationV4::pawnValue;
+		return EvaluationV5::pawnValue;
 	}
 
 	return 0;
