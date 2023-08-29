@@ -3,11 +3,13 @@
 TranspositionTable::TranspositionTable() {
 	mpBoard = NULL;
 
-	mTable = new TableEntry[size];
+	mSize = mbSize * 1024 * 1024 / sizeof(TableEntry); // TODO, change the size to be in megabyte instead of entry
+
+	mTable = new TableEntry[mSize]; 
 }
 
 TranspositionTable::~TranspositionTable() {
-	delete mTable;
+	delete[] mTable;
 }
 
 void TranspositionTable::init(Board* pBoard) {
@@ -15,7 +17,7 @@ void TranspositionTable::init(Board* pBoard) {
 }
 
 void TranspositionTable::storeEvaluation(int v, int d, TableEntryType t, Move m) {
-	int index = mpBoard->zobristKey % size;
+	int index = mpBoard->zobristKey % mSize;
 	
 	if (mTable[index].type == invalid)	{
 		stats.numWrites++;
@@ -30,7 +32,7 @@ void TranspositionTable::storeEvaluation(int v, int d, TableEntryType t, Move m)
 }
 
 int TranspositionTable::getEvaluation(int alpha, int beta, int d) {
-	TableEntry entry = mTable[mpBoard->zobristKey % size];
+	TableEntry entry = mTable[mpBoard->zobristKey % mSize];
 
 	if (entry.type == invalid)
 		return invalidEval;
@@ -64,15 +66,15 @@ int TranspositionTable::getEvaluation(int alpha, int beta, int d) {
 }
 
 Move TranspositionTable::getMove() {
-	return mTable[mpBoard->zobristKey % size].move;
+	return mTable[mpBoard->zobristKey % mSize].move;
 }
 
 TranspositionTable::TableEntry TranspositionTable::getEntry() {
-	return mTable[mpBoard->zobristKey % size];
+	return mTable[mpBoard->zobristKey % mSize];
 }
 
 void TranspositionTable::clear() {
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < mSize; i++)
 		mTable[i] = TableEntry();
 }
 

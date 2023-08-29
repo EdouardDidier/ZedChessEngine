@@ -55,6 +55,18 @@
     <Filter Include="Fichiers d%27en-tête\AI\old">
       <UniqueIdentifier>{952d6eac-f3bc-442e-ba39-8ecbc3cd8d74}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers de ressources\audio">
+      <UniqueIdentifier>{8ce7d32c-5530-494e-8de2-c37f6df4c4bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers de ressources\graphics">
+      <UniqueIdentifier>{1c3d5d05-57ee-4367-8547-b3b6a37a1711}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers de ressources\graphics\sprites">
+      <UniqueIdentifier>{5c83c621-0577-4d3c-b954-23351042e902}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers de ressources\fonts">
+      <UniqueIdentifier>{b0005ef3-9289-4fe1-ab71-67eb9cf0aae0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -218,5 +230,101 @@
     <ClInclude Include="src\engine\Game.h">
       <Filter>Fichiers d%27en-tête\Engine</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="resources\audio\capture.wav">
+      <Filter>Fichiers de ressources\audio</Filter>
+    </Media>
+    <Media Include="resources\audio\castle.wav">
+      <Filter>Fichiers de ressources\audio</Filter>
+    </Media>
+    <Media Include="resources\audio\game-end.wav">
+      <Filter>Fichiers de ressources\audio</Filter>
+    </Media>
+    <Media Include="resources\audio\game-start.wav">
+      <Filter>Fichiers de ressources\audio</Filter>
+    </Media>
+    <Media Include="resources\audio\move-check.wav">
+      <Filter>Fichiers de ressources\audio</Filter>
+    </Media>
+    <Media Include="resources\audio\move-opponent.wav">
+      <Filter>Fichiers de ressources\audio</Filter>
+    </Media>
+    <Media Include="resources\audio\move-self.wav">
+      <Filter>Fichiers de ressources\audio</Filter>
+    </Media>
+    <Media Include="resources\audio\promote.wav">
+      <Filter>Fichiers de ressources\audio</Filter>
+    </Media>
+    <Media Include="resources\audio\tenseconds.wav">
+      <Filter>Fichiers de ressources\audio</Filter>
+    </Media>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\graphics\sprites\bb.png">
+      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    </Image>
+    <Image Include="resources\graphics\sprites\bk.png">
+      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    </Image>
+    <Image Include="resources\graphics\sprites\bn.png">
+      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    </Image>
+    <Image Include="resources\graphics\sprites\bp.png">
+      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    </Image>
+    <Image Include="resources\graphics\sprites\bq.png">
+      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    </Image>
+    <Image Include="resources\graphics\sprites\br.png">
+      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    </Image>
+    <Image Include="resources\graphics\sprites\pieces.png">
+      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    </Image>
+    <Image Include="resources\graphics\sprites\pieces150x150.png">
+      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    </Image>
+    <Image Include="resources\graphics\sprites\wb.png">
+      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    </Image>
+    <Image Include="resources\graphics\sprites\wk.png">
+      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    </Image>
+    <Image Include="resources\graphics\sprites\wn.png">
+      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    </Image>
+    <Image Include="resources\graphics\sprites\wp.png">
+      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    </Image>
+    <Image Include="resources\graphics\sprites\wq.png">
+      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    </Image>
+    <Image Include="resources\graphics\sprites\wr.png">
+      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="resources\fonts\arial.ttf">
+      <Filter>Fichiers de ressources\fonts</Filter>
+    </Font>
+    <Font Include="resources\fonts\Arialn.ttf">
+      <Filter>Fichiers de ressources\fonts</Filter>
+    </Font>
+    <Font Include="resources\fonts\ArialTh.ttf">
+      <Filter>Fichiers de ressources\fonts</Filter>
+    </Font>
+    <Font Include="resources\fonts\ARIBL0.ttf">
+      <Filter>Fichiers de ressources\fonts</Filter>
+    </Font>
+    <Font Include="resources\fonts\G_ari_bd.TTF">
+      <Filter>Fichiers de ressources\fonts</Filter>
+    </Font>
+    <Font Include="resources\fonts\G_ari_i.TTF">
+      <Filter>Fichiers de ressources\fonts</Filter>
+    </Font>
+    <Font Include="resources\fonts\GEO_AI__.TTF">
+      <Filter>Fichiers de ressources\fonts</Filter>
+    </Font>
   </ItemGroup>
 </Project>

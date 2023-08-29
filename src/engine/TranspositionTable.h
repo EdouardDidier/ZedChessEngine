@@ -34,12 +34,14 @@ public:
 	};
 
 public:
-	static const int size = 1000000; // Random start size (2^20)
+	static const int mbSize = 64; // Random start size (2^20)
 	static const int invalidEval = INT_MIN + 1;
 
 	TableStats stats;
 
 private:
+	int mSize;
+
 	Board *mpBoard;
 	TableEntry *mTable;
 
