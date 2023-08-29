@@ -157,7 +157,7 @@
     <ClCompile Include="src\engine\Game.cpp" />
     <ClCompile Include="src\graphics\Geometry.cpp" />
     <ClCompile Include="src\graphics\Graphic.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\engine\Move.cpp" />
     <ClCompile Include="src\engine\MoveGenerator.cpp" />
     <ClCompile Include="src\graphics\Palette.cpp" />
