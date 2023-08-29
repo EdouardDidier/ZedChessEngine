@@ -210,9 +210,11 @@ void Game::handleGameEvents(SDL_Event &e, Uint32 pMouseState, const Uint8 *pKeyb
 		switch (e.key.keysym.sym)
 		{
 		case SDLK_LEFT:
+			mIsPaused = true;
 			undoMove();
 			break;
 		case SDLK_RIGHT:
+			mIsPaused = true;
 			redoMove();
 			break;
 		case SDLK_r:
