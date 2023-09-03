@@ -31,6 +31,7 @@ void TranspositionTable::storeEvaluation(int v, int d, TableEntryType t, Move m)
 	}
 }
 
+//TODO: update mate score when retrieved
 int TranspositionTable::getEvaluation(int alpha, int beta, int d) {
 	TableEntry entry = mTable[mpBoard->zobristKey % mSize];
 

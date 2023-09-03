@@ -26,6 +26,40 @@ Board::~Board() {
 	deletePieceArrays();
 }
 
+Board::Board(const Board& other)
+	: squares(new int[64]), 
+	whiteToMove(other.whiteToMove), 
+	colourToMove(other.colourToMove), 
+	opponentColour(other.opponentColour), 
+	colourToMoveIndex(other.colourToMoveIndex), 
+	opponentColourIndex(other.opponentColourIndex),
+	currentGameState(other.currentGameState),
+	gameStateHistory(other.gameStateHistory),
+	moveHistory(other.moveHistory),
+	moveToRedo(other.moveToRedo),
+	zobristKey(other.zobristKey),
+	zobristKeyHistory(other.zobristKeyHistory),
+	repetitionHistory(other.repetitionHistory),
+	moveCount(other.moveCount),
+	fiftyMoveCounter(other.fiftyMoveCounter)
+{
+	for (int i = 0; i < 64; i++) {
+		squares[i] = other.squares[i];
+	}
+
+	createPieceArrays();
+
+	for (int i = 0; i < 2; i++) {
+		kings[i] = other.kings[i];
+	}
+
+	for (int i = 0; i < 16; i++) {
+		for (int j = 0; j < other.mAllPieceLists[i]->count(); j++) {
+			mAllPieceLists[i]->addAtSquare((*other.mAllPieceLists[i])[j]);	
+		}
+	}
+}
+
 void Board::makeMove(Move move, bool eraseMoveToRedo) {
 	int oldEpFile = (currentGameState >> 4) & 0b1111;
 	int oldCastleState = currentGameState & 0b1111;
@@ -75,11 +109,14 @@ void Board::makeMove(Move move, bool eraseMoveToRedo) {
 	if (oldCastleState != 0) {
 		if (startSquare == 0 || targetSquare == 0) // 0 = a1
 			newCastleState &= whiteCastleQueenSideMask;
-		else if (startSquare == 7 || targetSquare == 7) // 7 = h1
+		
+		if (startSquare == 7 || targetSquare == 7) // 7 = h1
 			newCastleState &= whiteCastleKingSideMask;
-		else if (startSquare == 56 || targetSquare == 56) // 56 = a8
+		
+		if (startSquare == 56 || targetSquare == 56) // 56 = a8
 			newCastleState &= blackCastleQueenSideMask;
-		else if (startSquare == 63 || targetSquare == 63) // 63 = h8
+		
+		if (startSquare == 63 || targetSquare == 63) // 63 = h8
 			newCastleState &= blackCastleKingSideMask;
 	}
 
@@ -423,21 +460,21 @@ void Board::createPieceArrays() {
 
 	mAllPieceLists = new PieceList * [16] {
 		emptyPieceList[whiteIndex],
-			emptyPieceList[whiteIndex],
-			pawns[whiteIndex],
-			knights[whiteIndex],
-			emptyPieceList[whiteIndex],
-			bishops[whiteIndex],
-			rooks[whiteIndex],
-			queens[whiteIndex],
-			emptyPieceList[blackIndex],
-			emptyPieceList[blackIndex],
-			pawns[blackIndex],
-			knights[blackIndex],
-			emptyPieceList[blackIndex],
-			bishops[blackIndex],
-			rooks[blackIndex],
-			queens[blackIndex]
+		emptyPieceList[whiteIndex],
+		pawns[whiteIndex],
+		knights[whiteIndex],
+		emptyPieceList[whiteIndex],
+		bishops[whiteIndex],
+		rooks[whiteIndex],
+		queens[whiteIndex],
+		emptyPieceList[blackIndex],
+		emptyPieceList[blackIndex],
+		pawns[blackIndex],
+		knights[blackIndex],
+		emptyPieceList[blackIndex],
+		bishops[blackIndex],
+		rooks[blackIndex],
+		queens[blackIndex]
 	};
 }
 

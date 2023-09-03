@@ -54,13 +54,13 @@ public:
 	PieceList **knights;
 	PieceList **pawns;
 
-	const Uint16 whiteCastleKingSideMask = 0b1111111111111110;
-	const Uint16 whiteCastleQueenSideMask = 0b1111111111111101;
-	const Uint16 blackCastleKingSideMask = 0b1111111111111011;
-	const Uint16 blackCastleQueenSideMask = 0b1111111111110111;
+	static const Uint16 whiteCastleKingSideMask =  0b1111111111111110;
+	static const Uint16 whiteCastleQueenSideMask = 0b1111111111111101;
+	static const Uint16 blackCastleKingSideMask =  0b1111111111111011;
+	static const Uint16 blackCastleQueenSideMask = 0b1111111111110111;
 
-	const Uint16 whiteCastleMask = whiteCastleKingSideMask & whiteCastleQueenSideMask;
-	const Uint16 blackCastleMask = blackCastleKingSideMask & blackCastleQueenSideMask;
+	static const Uint16 whiteCastleMask = whiteCastleKingSideMask & whiteCastleQueenSideMask;
+	static const Uint16 blackCastleMask = blackCastleKingSideMask & blackCastleQueenSideMask;
 
 private:
 	PieceList** mAllPieceLists;
@@ -68,6 +68,8 @@ private:
 public:
 	Board();
 	~Board();
+
+	Board(const Board& other);
 
 	void makeMove(Move move, bool eraseMoveToRedo = true);
 	void redoMove();

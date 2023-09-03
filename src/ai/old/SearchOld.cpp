@@ -250,11 +250,13 @@ SearchV4::~SearchV4() {
 }
 
 void SearchV4::init(Board* pBoard) {
-	mpBoard = pBoard;
-	mTranspositionTable.init(pBoard);
+
 }
 
-void SearchV4::searchMove(int depthLeft) {
+void SearchV4::searchMove(Board *pBoard, int depthLeft) {
+	mpBoard = new Board(*pBoard);
+	mTranspositionTable.init(mpBoard);
+
 	// Reset diagnostics datas
 	numNodes = 0;
 	numCutoffs = 0;
@@ -288,6 +290,7 @@ void SearchV4::searchMove(int depthLeft) {
 	cout << "| Overwrites: " << tableStats.numOverwrites << endl << endl;
 
 	delete[] mMoveSequence;
+	delete mpBoard;
 }
 
 int SearchV4::alphaBeta(int alpha, int beta, int depthLeft, int plyCount) {

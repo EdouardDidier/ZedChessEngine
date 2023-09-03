@@ -1,6 +1,10 @@
 #pragma once
 
+#include "PieceSquareTables.h"
+
 #include "./src/engine/Board.h"
+#include "./src/engine/PieceList.h"
+
 
 class EvaluationV5
 {
@@ -18,6 +22,16 @@ public:
 	static const int squareControlledPenality = 350;
 
 public:
+	EvaluationV5();
+
 	int evaluate(Board *pBoard);
+	int evaluatePieceSquareTables();
+	int evaluatePieceSquare(const int* table, PieceList *pieceList, bool isWhite);
+
+private:
+	Board *mpBoard;
+	
+	int mFriendlyIndex;
+	int mOpponentIndex;
 };
 

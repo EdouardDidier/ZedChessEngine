@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <future>
 
 #include "./src/engine/Board.h"
 #include "./src/engine/MoveGenerator.h"
@@ -19,9 +20,7 @@ public:
 	SearchV5();
 	~SearchV5();
 
-	void init(Board *pBoard);
-
-	void searchMove(int maxDepth);
+	void searchMove(Board *pBoard, int searchTime = 1000, int maxDepth = 1000);
 	int alphaBeta(int alpha, int beta, int depthLeft, int plyCount);
 	int quiescenceSearch(int alpha, int beta);
 	
@@ -36,12 +35,19 @@ private:
 	int partitionMoves(vector<Move>& moves, int* moveScores, int start, int end);
 	void quickSortMoves(vector<Move>& moves, int* moveScores, int start, int end);
 
+	void setTimer(int time);
+	void requestAbort(int time);
+
 private:
 	Profiler mProfiler;
 
 	Board *mpBoard;
 	EvaluationV5 mEvaluation;
 	MoveGenerator mMoveGenerator;
+
+	std::future<void> mTimer;
+	bool mAbortSearch;
+	bool mAbortTimer;
 
 	TranspositionTable mTranspositionTable;
 

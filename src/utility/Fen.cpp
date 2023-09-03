@@ -1,6 +1,8 @@
 #include "Fen.h"
 
-const string Fen::fenStartPosition = "rnb1kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+const string Fen::fenStartPosition = /**/ "rnb1kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; /*/ "r2qk2r / ppp2ppp / 2n5 / 3n4 / PbPpp1bP / 1P6 / 3PPPP1 / RNBQKBNR b KQkq c3 0 1"; // */
+// Mate in 10 ply with forced knight promotion "8/pRP4p/6pk/3r4/1P3p2/4p2P/P4PP1/6K1 b - - 0 1"
+// Standard starting position "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 // Mate in 2: "r2qkb1r/pp2nppp/3p4/2pNN1B1/2BnP3/3P4/PPP2PPP/R2bK2R w KQkq - 1 0"
 // En passant capture that leves a check "8/6bb/8/8/R1pP2k1/4P3/P7/K7 b - d3" "8/6bb/8/8/R1p3k1/4P3/P2P/K7 w - -"
 // 218 possible moves "R6R / 3Q4 / 1Q4Q1 / 4Q3 / 2Q4Q / Q4Q2 / pp1Q4 / kBNNK1B1 w - -0 1"

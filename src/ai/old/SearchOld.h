@@ -96,7 +96,7 @@ public:
 
 	void init(Board* pBoard);
 
-	void searchMove(int depthLeft);
+	void searchMove(Board *pBoard, int depthLeft);
 	int alphaBeta(int alpha, int beta, int depthLeft, int plyCount);
 
 	Move getBestMove();

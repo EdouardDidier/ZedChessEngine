@@ -7,6 +7,8 @@
 #include <vector>
 #include <list>
 
+#include <future>
+
 #include "./src/graphics/Timer.h"
 
 #include "./src/audio/Audio.h"
@@ -63,6 +65,9 @@ public:
 	void playSound(Move move, int targetPiecex, bool inCheck);
 
 private:
+	Move asyncSearch();
+
+private:
 	bool isPrivateBoard = true;
 
 	Timer mTimer;
@@ -79,8 +84,10 @@ private:
 	vector<int> mHighlightSquares[PALETTE_HIGHLIGHT_SIZE];
 
 	Board* mpBoard;
+	
 	SearchV4 mSearchWhite;
 	SearchV5 mSearchBlack;
+	std::future<Move> mSearchMoveResult;
 
 	MoveGenerator mMoveGenerator;
 	vector<Move> mLegalMoves;

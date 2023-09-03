@@ -10,6 +10,8 @@ SearchV5::SearchV5() {
 	mBestEvalThisIteration = mBestEval;
 
 	mpBoard = NULL;
+	mAbortSearch = false;
+	mAbortTimer = false;
 
 	numNodes = 0;
 	numCutoffs = 0;
@@ -22,45 +24,57 @@ SearchV5::~SearchV5() {
 
 }
 
-void SearchV5::init(Board *pBoard) {
-	mpBoard = pBoard;
-	mTranspositionTable.init(pBoard);
-}
+void SearchV5::searchMove(Board *pBoard, int searchTime, int maxDepth) {
+	mProfiler.startMeasure();
 
-void SearchV5::searchMove(int maxDepth) {
+	setTimer(searchTime);
+
+	mpBoard = new Board(*pBoard);
+	mTranspositionTable.init(mpBoard);
+
 	// Reset diagnostics datas
 	numNodes = 0;
 	numCutoffs = 0;
 	numCaptureNodes = 0;
 
 	mTranspositionTable.resetStats();
-	mProfiler.startMeasure();
 
 	// Creating new array to store move sequente (if hit by TT, deeper move are currently not updated)
 	mMoveSequence = new Move[maxDepth + 1];
 
-	cout << endl << "[AlphaBeta] " << (mpBoard->whiteToMove ? "White" : "Black") << " - Searching at depth " << maxDepth << " ..." << endl;
+	cout << endl << "[AlphaBeta] " << (mpBoard->whiteToMove ? "White" : "Black") << " - Searching for " << (searchTime / 1000) << "s ..." << endl;
 
 	// Executing iterative deepening search
 	int currentSearchDepth = 0;
 	for (int depth = 1; depth <= maxDepth; depth++) {
-		currentSearchDepth = depth;
+	
 		alphaBeta(INT_MIN + 1, INT_MAX, depth, 0);
+
+		currentSearchDepth = depth;
 
 		mBestMove = mBestMoveThisIteration;
 		mBestEval = mBestEvalThisIteration;
 
+		if (mAbortSearch) {
+			cout << "Search aborted" << endl;
+			break;
+		}
+
 		// Displaying moves at each iteration
-		cout << "(Depth: " << depth  << ") Eval: " << mBestEvalThisIteration << "\t| ";
+		cout << "(Depth: " << depth  << ") Eval: " << mBestEval << "\t| ";
 		for (int i = 0; i < depth; i++)
 			cout << (mMoveSequence[i].isInvalid() ? "Null" : BoardRepresentation::getMoveString(mMoveSequence[i])) << ((i != depth - 1) ? " - " : "");
 		cout << endl;
+
+		// If mate score found, quit the search, all later mate will take more moves
+		if (mBestEval >= EvaluationV5::maxEval)
+			break;
 	}
 
 	// Displayinng results
 	cout << endl << "Generals stats:" << endl;
 	cout << "| Time: " << (double)mProfiler.endMeasure() / 1000.0 << "s (Avg: " << (double)mProfiler.getAverage() / 1000.0 << "s)\t";
-	cout << "| Nodes: " << numNodes << "\t| Cutoffs: " << numCutoffs << "\t| Captured nodes: " << numCaptureNodes << endl << endl;
+	cout << "| Depth: " << currentSearchDepth << "\t| Nodes: " << numNodes << "\t| Cutoffs: " << numCutoffs << "\t| Captured nodes: " << numCaptureNodes << endl << endl;
 
 	TranspositionTable::TableStats tableStats = mTranspositionTable.stats;
 	cout << "Transpositions stats:" << endl;
@@ -70,13 +84,17 @@ void SearchV5::searchMove(int maxDepth) {
 	cout << "| Overwrites: " << tableStats.numOverwrites << endl << endl;
 
 	delete[] mMoveSequence;
+	delete mpBoard;
 }
 
 int SearchV5::alphaBeta(int alpha, int beta, int depthLeft, int plyCount) {
-	// If repetition, return draw score (limiting to 1 reptition for simplicity) TODO: Check if works correctly with transposition table
+	if (mAbortSearch)
+		return 0;
+
+	// If repetition, return draw score (limiting to 1 reptition for simplicity)
 	if (plyCount > 0)
 		if (mpBoard->isRepetition(2))
-			return 1;
+			return 1; //TODO: replace with draw score with ply count (favorising later draw)
 
 	int ttEval = mTranspositionTable.getEvaluation(alpha, beta, depthLeft);
 	if (ttEval != TranspositionTable::invalidEval) {
@@ -98,9 +116,9 @@ int SearchV5::alphaBeta(int alpha, int beta, int depthLeft, int plyCount) {
 
 	if (moves.empty()) {
 		if (mMoveGenerator.inCheck)
-			return EvaluationV5::minEval - depthLeft; // Adding a depth to prefer check mates in less moves
+			return EvaluationV5::minEval - depthLeft; // Adding a depth to prefer check mates in less moves //TODO: replace with a mate score and probably change with a +plycount
 		else
-			return -1;
+			return -1; //TODO: replace with a draw score
 	}
 
 	TranspositionTable::TableEntryType evalType = TranspositionTable::upperBound;
@@ -112,6 +130,9 @@ int SearchV5::alphaBeta(int alpha, int beta, int depthLeft, int plyCount) {
 		mpBoard->makeMove(move);
 		int score = -alphaBeta(-beta, -alpha, depthLeft - 1, plyCount + 1);
 		mpBoard->undoMove();
+	
+		if (mAbortSearch)
+			return 0;
 
 		if (score >= beta) {
 			mTranspositionTable.storeEvaluation(beta, depthLeft, TranspositionTable::lowerBound, move);
@@ -182,9 +203,35 @@ int SearchV5::getEval() {
 	return mBestEval;
 }
 
+void SearchV5::setTimer(int time) {
+	// If another timer is already running, abort it before starting a new one
+	if (mTimer.valid()) {
+		if (mTimer.wait_for(std::chrono::seconds(0)) == std::future_status::timeout) {
+			mAbortTimer = true;
+			mTimer.wait();
+			mAbortTimer = false;
+		}
+	}
+
+	mAbortSearch = false;
+	mTimer = std::async(std::launch::async, &SearchV5::requestAbort, this, time);
+}
+
+void SearchV5::requestAbort(int time) {
+	const int step = 50;
+	int count = 0;
+	
+	while (count < time && !mAbortTimer) {
+		SDL_Delay(step);
+		count += step;
+	}
+	
+	mAbortSearch = true;
+}
+
 void SearchV5::orderMove(vector<Move>& moves) {
 	int *moveScores = new int[(int)moves.size()];
-	Move ttMove = mTranspositionTable.getBestMoveOfPosition(); //TODO: consider move of transposition table
+	Move ttMove = mTranspositionTable.getBestMoveOfPosition();
 
 	// Evaluating moves
 	for (int i = 0; i < moves.size(); i++) {

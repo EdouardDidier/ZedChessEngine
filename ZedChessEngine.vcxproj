@@ -79,7 +79,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir);$(ProjectDir)SDL2\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)SDL2\lib\x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)\SDL2\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ai\PieceSquareTables.cpp" />
     <ClCompile Include="src\graphics\Animation.cpp" />
     <ClCompile Include="src\audio\Audio.cpp" />
     <ClCompile Include="src\engine\Board.cpp" />
@@ -174,6 +175,7 @@
     <ClCompile Include="src\utility\Zobrist.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ai\PieceSquareTables.h" />
     <ClInclude Include="src\graphics\Animation.h" />
     <ClInclude Include="src\audio\Audio.h" />
     <ClInclude Include="src\engine\Board.h" />

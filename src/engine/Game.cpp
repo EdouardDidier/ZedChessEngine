@@ -18,8 +18,8 @@ Game::Game(Board *pBoard) {
 		isPrivateBoard = false;
 	}
 
-	mSearchWhite.init(mpBoard);
-	mSearchBlack.init(mpBoard);
+	//mSearchWhite.init(mpBoard);
+	//mSearchBlack.init(mpBoard);
 }
 
 Game::~Game()
@@ -28,8 +28,7 @@ Game::~Game()
 		delete mpBoard;
 }
 
-bool Game::init()
-{
+bool Game::init() {
 	//Initializing graphics. If failed, end the program.
 	if (!mGraphic.init())
 		return false;
@@ -551,23 +550,38 @@ bool Game::undoMove() {
 }
 
 bool Game::iaPlay() {
-	Move move;
-
-	if (mpBoard->colourToMove == Piece::white) {
-		mSearchWhite.searchMove(6);
-		move = mSearchWhite.getBestMove();
+	if (mSearchMoveResult.valid() == false) {
+		mLegalMoves.clear();
+		mPossibleMoves.clear();
+		mSearchMoveResult = std::async(std::launch::async, &Game::asyncSearch, this);
 	}
-	else {
-		mSearchBlack.searchMove(6);
-		move = mSearchBlack.getBestMove();
-	}
-
-	if (!move.isInvalid()) {
-		makeAnimatedMove(move);
-		return true;
+	else if (mSearchMoveResult.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+		Move move = mSearchMoveResult.get();
+		
+		if (!move.isInvalid()) {
+			makeAnimatedMove(move);
+			cout << " ---> Move played: " << BoardRepresentation::getMoveString(move) << endl << endl;
+			return true;
+		}
 	}
 
 	return false;
+}
+
+Move Game::asyncSearch() {
+	//TODO: URGENT: block player plays and make undo / redo search interrupts
+	Move move = Move::invalidMove();
+
+	if (mpBoard->colourToMove == Piece::white) {
+		mSearchWhite.searchMove(mpBoard, 5);
+		move = mSearchWhite.getBestMove();
+	}
+	else {
+		mSearchBlack.searchMove(mpBoard, 2000);
+		move = mSearchBlack.getBestMove();
+	}
+
+	return move;
 }
 
 Coord Game::getBoardCoord(int y, int x)
