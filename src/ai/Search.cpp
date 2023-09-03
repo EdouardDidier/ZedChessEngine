@@ -204,14 +204,7 @@ int SearchV5::getEval() {
 }
 
 void SearchV5::setTimer(int time) {
-	// If another timer is already running, abort it before starting a new one
-	if (mTimer.valid()) {
-		if (mTimer.wait_for(std::chrono::seconds(0)) == std::future_status::timeout) {
-			mAbortTimer = true;
-			mTimer.wait();
-			mAbortTimer = false;
-		}
-	}
+	abortSearch();
 
 	mAbortSearch = false;
 	mTimer = std::async(std::launch::async, &SearchV5::requestAbort, this, time);
@@ -227,6 +220,17 @@ void SearchV5::requestAbort(int time) {
 	}
 	
 	mAbortSearch = true;
+}
+
+void SearchV5::abortSearch() {
+	// If another timer is already running, abort it before starting a new one
+	if (mTimer.valid()) {
+		if (mTimer.wait_for(std::chrono::seconds(0)) == std::future_status::timeout) {
+			mAbortTimer = true;
+			mTimer.wait();
+			mAbortTimer = false;
+		}
+	}
 }
 
 void SearchV5::orderMove(vector<Move>& moves) {

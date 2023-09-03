@@ -37,6 +37,7 @@ private:
 
 	void setTimer(int time);
 	void requestAbort(int time);
+	void abortSearch();
 
 private:
 	Profiler mProfiler;

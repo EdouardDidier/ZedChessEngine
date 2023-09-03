@@ -569,7 +569,7 @@ bool Game::iaPlay() {
 }
 
 Move Game::asyncSearch() {
-	//TODO: URGENT: block player plays and make undo / redo search interrupts
+	//TODO: Handle async searches in player class
 	Move move = Move::invalidMove();
 
 	if (mpBoard->colourToMove == Piece::white) {
