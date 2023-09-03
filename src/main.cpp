@@ -2,31 +2,37 @@
 #include "./src/utility/CLI.h"
 
 int main(int argc, char** args) {
+	Board* pBoard = new Board();
+
+	// Load start position from Fen string
+	pBoard->loadStartPosition();
+
 	// If argument, enter test mode
 	if (argc > 1) {
 		if (strcmp(args[1], "-g") == 0 || strcmp(args[1], "-graphic") == 0) {
-			Game* pGame = new Game();
+			Game game(pBoard);
 
 			// Initializing the game. If failed end the program with error code.
-			if (!pGame->init()) return 1;
+			if (!game.init()) return 1;
 
-			pGame->run();
+			game.run();
 
 			// Freeing memory
-			pGame->kill();
-			delete pGame;
+			game.kill();
 
 			return 0;
 		}
 	}
 
-	CLI cli;
+	CLI cli = CLI(pBoard);
 	
 	cli.init();
 
 	cli.run();
 
 	cli.kill();
+
+	delete pBoard;
 
 	return 0;
 }

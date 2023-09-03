@@ -41,7 +41,7 @@ class Animation;
 class Graphic
 {
 public:
-	Graphic();
+	Graphic(int x, int y);
 	~Graphic();
 
 	bool init();
@@ -68,6 +68,15 @@ public:
 
 	void update();
 
+	Coord getBoardCoord(int x, int y);
+
+	int getPosX();
+	int getPosY();
+	bool isFlipped();
+
+	void moveTo(int x, int y);
+	void flip();
+
 	bool loadPieces();
 	bool loadFont();
 
@@ -88,4 +97,9 @@ private:
 	map<char, SDL_Texture *> mpCharTextures[PALETTE_TEXT_SIZE];
 
 	TTF_Font* mpFont;
+
+	int mPosX;
+	int mPosY;
+
+	bool mIsFlipped;
 };

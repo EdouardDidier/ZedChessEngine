@@ -15,7 +15,8 @@ map<int, int> Graphic::mPieceToGraphic = {
 	{Piece::black | Piece::pawn, 11}
 };
 
-Graphic::Graphic()
+Graphic::Graphic(int x, int y)
+	: mPosX(x), mPosY(y), mIsFlipped(false)
 {
 	mpWindow = NULL;
 	mpRenderer = NULL;
@@ -29,7 +30,7 @@ Graphic::~Graphic()
 	delete mpPiecesTextures;
 }
 
-bool Graphic::init()
+bool Graphic::init() 
 {
 	// Initialize SDL. If failed, end program.
 	if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
@@ -102,10 +103,11 @@ void Graphic::kill() {
 	SDL_Quit();
 }
 
-// Apply background color
 void Graphic::drawBackground() {
-	// Set Background
+	// Set Background color
 	SDL_SetRenderDrawColor(mpRenderer, 49, 46, 43, 255);
+	
+	// Apply background color
 	SDL_RenderClear(mpRenderer);
 }
 
@@ -113,7 +115,7 @@ void Graphic::drawBoard() {
 	for (int y = 0; y < 8; y++) {
 		for (int x = 0; x < 8; x++) {
 			drawSquare(
-				{ (x - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (y - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE }, 
+				{ mPosX + x * SQUARE_SIZE, mPosY + y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE }, 
 				((y + x) % 2) ? Palette::dark : Palette::light
 			);
 		}
@@ -121,15 +123,23 @@ void Graphic::drawBoard() {
 }
 
 void Graphic::drawCoordinate() {
-	string fileC = "1";
-	string rankC = "a";
+	string fileC = mIsFlipped ? "8" : "1";
+	string rankC = mIsFlipped ? "h" : "a";
 
 	for (int i = 0; i < 8; i++) {
 		int color = i % 2 ? 2 : 1;
-		drawText(fileC, -4 * SQUARE_SIZE + WINDOW_WIDTH / 2 + 6, (7 - i - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2 + 6, color);
-		drawText(rankC, (i - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2 + 80, 4 * SQUARE_SIZE + WINDOW_HEIGHT / 2 - 30, color);
-		fileC[0]++;
-		rankC[0]++;
+
+		drawText(fileC, mPosX + 6, mPosY + (7 - i) * SQUARE_SIZE + 6, color);
+		drawText(rankC, mPosX + i * SQUARE_SIZE + 80, mPosY + 8 * SQUARE_SIZE - 30, color);
+
+		if (!mIsFlipped) {
+			fileC[0]++;
+			rankC[0]++;
+		}
+		else {
+			fileC[0]--;
+			rankC[0]--;
+		}
 	}
 }
 
@@ -138,7 +148,8 @@ void Graphic::drawHighlightSquares(vector<int> *highlightSquares) { //TODO: Not 
 	for (int i = 0; i < PALETTE_HIGHLIGHT_SIZE; i++) {
 		for (int square : highlightSquares[i]) {
 			Coord coord = Coord(square);
-			drawSquare({ (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE }, Palette::highlight[i]);
+			int flipOffset = mIsFlipped ? coord.getRank() : 7 - coord.getRank();
+			drawSquare({ mPosX + coord.getFile() * SQUARE_SIZE, mPosY + flipOffset * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE }, Palette::highlight[i]);
 		}
 	}
 }
@@ -147,11 +158,12 @@ void Graphic::drawHints(vector<Move> moves, int *squares) {
 	for (Move move : moves) {
 
 		Coord coord = Coord(move.getTargetSquare());
+		int flipOffset = mIsFlipped ? coord.getRank() : 7 - coord.getRank();
+
 		if (squares[move.getTargetSquare()] == Piece::none) {
 			Geometry::SDL_RenderFillCircle(
 				mpRenderer, 
-				(coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2 + 50, 
-				(7 - coord.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2 + 50, 
+				mPosX + coord.getFile() * SQUARE_SIZE + 50, mPosY + flipOffset * SQUARE_SIZE + 50,
 				18, 
 				Palette::hint
 			);
@@ -159,7 +171,7 @@ void Graphic::drawHints(vector<Move> moves, int *squares) {
 		else {
 			Geometry::SDL_RenderHollowCircle(
 				mpRenderer, 
-				(coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2 + 50, (7 - coord.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2 + 50, 
+				mPosX + coord.getFile() * SQUARE_SIZE + 50, mPosY + flipOffset * SQUARE_SIZE + 50,
 				40, 
 				48,
 				Palette::hint
@@ -176,28 +188,28 @@ void Graphic::drawHoverSquare(Coord coord) {
 	SDL_SetRenderDrawColor(mpRenderer, Palette::hover.r, Palette::hover.g, Palette::hover.b, Palette::hover.a);
 
 	// Compute square position based on index and Adding square to Window
+	int flipOffset = mIsFlipped ? coord.getRank() : 7 - coord.getRank();
+
 	// Top
-	dest = { (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2, SQUARE_SIZE, LINE_WIDTH };
+	dest = { mPosX + coord.getFile() * SQUARE_SIZE, mPosY + flipOffset * SQUARE_SIZE, SQUARE_SIZE, LINE_WIDTH };
 	SDL_RenderFillRect(mpRenderer, &dest);
 
 	// Left
-	dest = { (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2 + LINE_WIDTH,  LINE_WIDTH, SQUARE_SIZE - LINE_WIDTH * 2 };
+	dest = { mPosX + coord.getFile() * SQUARE_SIZE, mPosY + flipOffset * SQUARE_SIZE + LINE_WIDTH,  LINE_WIDTH, SQUARE_SIZE - LINE_WIDTH * 2 };
 	SDL_RenderFillRect(mpRenderer, &dest);
 
 	// Right
-	dest = { (coord.getFile() - 3) * SQUARE_SIZE + WINDOW_WIDTH / 2 - LINE_WIDTH, (7 - coord.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2 + LINE_WIDTH,  LINE_WIDTH, SQUARE_SIZE - LINE_WIDTH * 2 };
+	dest = { mPosX + (coord.getFile() + 1) * SQUARE_SIZE - LINE_WIDTH, mPosY + flipOffset * SQUARE_SIZE + LINE_WIDTH,  LINE_WIDTH, SQUARE_SIZE - LINE_WIDTH * 2 };
 	SDL_RenderFillRect(mpRenderer, &dest);
 
 	// Bottom
-	dest = { (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 3) * SQUARE_SIZE + WINDOW_HEIGHT / 2 - LINE_WIDTH, SQUARE_SIZE, LINE_WIDTH };
+	dest = { mPosX + coord.getFile() * SQUARE_SIZE, mPosY + (flipOffset + 1) * SQUARE_SIZE - LINE_WIDTH, SQUARE_SIZE, LINE_WIDTH };
 	SDL_RenderFillRect(mpRenderer, &dest);
 }
 
 void Graphic::drawPieces(int *squares, list<Animation> *animations, int draggedPiece, int pieceToPromote) {
-	for (int y = 0; y < 8; y++)
-	{
-		for (int x = 0; x < 8; x++)
-		{
+	for (int y = 0; y < 8; y++)	{
+		for (int x = 0; x < 8; x++) {
 			int index = x + y * 8;
 
 			if (squares[index]) {
@@ -217,7 +229,10 @@ void Graphic::drawPieces(int *squares, list<Animation> *animations, int draggedP
 					}
 				}
 
-				if (toDraw)	this->drawPiece(piece, (x - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - y - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2 + offset);
+				if (toDraw)	{
+					int flipOffset = mIsFlipped ? y : 7 - y;
+					drawPiece(piece, mPosX + x * SQUARE_SIZE, mPosY + flipOffset * SQUARE_SIZE + offset);
+				}
 			}
 		}
 	}
@@ -231,14 +246,12 @@ void Graphic::drawPieceAtMouse(int draggedPiece) {
 }
 
 void Graphic::drawPiece(int piece, int x, int y) {
-	SDL_Rect dest;
-
-	dest = { x, y, SQUARE_SIZE, SQUARE_SIZE };
+	SDL_Rect dest = { x, y, SQUARE_SIZE, SQUARE_SIZE };
 	SDL_RenderCopy(mpRenderer, mpPiecesTextures[Graphic::mPieceToGraphic[piece]], NULL, &dest);
 }
 
 void Graphic::drawPiece(int piece, Coord coord) {
-	this->drawPiece(piece, (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 4)* SQUARE_SIZE + WINDOW_HEIGHT / 2);
+	drawPiece(piece, mPosX + coord.getFile() * SQUARE_SIZE, mPosY + (7 - coord.getRank()) * SQUARE_SIZE);
 }
 
 void Graphic::drawGameOver(bool whiteWin, bool isDraw) {
@@ -279,10 +292,11 @@ void Graphic::drawPromotionMenu(int squareToPromote) {
 		return;
 
 	int colour = (y == 7) ? Piece::white : Piece::black;
-	int yOffset = (y == 7) ? 0 : -3 * SQUARE_SIZE;
-	int yOffsetFactor = (y == 7) ? -1 : 1;
+	int yOffset = ((y == 7) == mIsFlipped) ? -3 * SQUARE_SIZE : 0;
+	int yOffsetFactor = ((y == 7) == mIsFlipped) ? 1 : -1;
 
-	dest = { (x - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - y - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2 + yOffset, SQUARE_SIZE, SQUARE_SIZE * 4 };
+	int flipOffset = mIsFlipped ? y : 7 - y;
+	dest = { mPosX + x * SQUARE_SIZE, mPosY + flipOffset * SQUARE_SIZE + yOffset, SQUARE_SIZE, SQUARE_SIZE * 4 };
 
 	SDL_SetRenderDrawColor(mpRenderer, 0, 0, 0, 255);
 	SDL_RenderFillRect(mpRenderer, &dest);
@@ -295,6 +309,9 @@ void Graphic::drawPromotionMenu(int squareToPromote) {
 	SDL_SetRenderDrawColor(mpRenderer, 255, 255, 255, 255);
 	SDL_RenderFillRect(mpRenderer, &dest);
 
+	if (mIsFlipped)
+		y = 7 - y;
+
 	drawPiece(Piece::queen | colour, Coord(y, x));
 	drawPiece(Piece::rook | colour, Coord(y + yOffsetFactor * 1, x));
 	drawPiece(Piece::bishop | colour, Coord(y + yOffsetFactor * 2, x));
@@ -303,6 +320,49 @@ void Graphic::drawPromotionMenu(int squareToPromote) {
 
 void Graphic::update() {
 	SDL_RenderPresent(mpRenderer);
+}
+
+Coord Graphic::getBoardCoord(int y, int x) {
+	x -= mPosX;
+	y -= mPosY;
+
+	if (x >= 0 && x <= SQUARE_SIZE * 8
+		&& y >= 0 && y <= SQUARE_SIZE * 8)
+	{
+		x /= SQUARE_SIZE;
+		y /= SQUARE_SIZE;
+
+		if (!mIsFlipped)
+			y = 7 - y;
+	}
+	else
+	{
+		x = -1;
+		y = -1;
+	}
+
+	return Coord(y, x);
+}
+
+int Graphic::getPosX() {
+	return mPosX;
+}
+
+int Graphic::getPosY() {
+	return mPosY;
+}
+
+bool Graphic::isFlipped() {
+	return mIsFlipped;
+}
+
+void Graphic::moveTo(int x, int y) {
+	mPosX = x;
+	mPosY = y;
+}
+
+void Graphic::flip() {
+	mIsFlipped = !mIsFlipped;
 }
 
 bool Graphic::loadPieces()
@@ -379,11 +439,10 @@ bool Graphic::loadFont() {
 }
 
 void Graphic::debugDrawSquareIndex() {
-	for (int y = 0; y < 8; y++)
-	{
-		for (int x = 0; x < 8; x++)
-		{
-			this->drawText(to_string(x + y * 8), (x - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2 + 6, (7 - y - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2 + 70, 3);
+	for (int y = 0; y < 8; y++)	{
+		for (int x = 0; x < 8; x++)	{
+			int flipOffset = mIsFlipped ? y : 7 - y;
+			drawText(to_string(x + y * 8), mPosX + x * SQUARE_SIZE + 6, mPosY + flipOffset * SQUARE_SIZE + 70, 3);
 		}
 	}
 }
@@ -392,7 +451,8 @@ void Graphic::debugDrawOccupiedSquares(PieceList** pieceList) {
 	for (int i = 0; i < 2; i++) {
 		for (int j = 0; j < pieceList[i]->count(); j++) {
 			Coord coord = Coord((*pieceList[i])[j]);
-			drawSquare({ (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE }, Palette::debug[i]);
+			int flipOffset = mIsFlipped ? coord.getRank() : 7 - coord.getRank();
+			drawSquare({ mPosX + coord.getFile() * SQUARE_SIZE, mPosY + flipOffset * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE }, Palette::debug[i]);
 		}
 	}
 }
@@ -400,7 +460,8 @@ void Graphic::debugDrawOccupiedSquares(PieceList** pieceList) {
 void Graphic::debugDrawOccupiedSquares(int *occupiedList) {
 	for (int i = 0; i < 2; i++) {
 		Coord coord = Coord(occupiedList[i]);
-		drawSquare({ (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE }, Palette::debug[i]);
+		int flipOffset = mIsFlipped ? coord.getRank() : 7 - coord.getRank();
+		drawSquare({ mPosX + coord.getFile() * SQUARE_SIZE, mPosY + flipOffset * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE }, Palette::debug[i]);
 	}
 }
 
@@ -410,6 +471,7 @@ void Graphic::debugDrawAttackedSquares(bool *attackedSquares, int colour) {
 			continue;
 
 		Coord coord = Coord(i);
-		drawSquare({ (coord.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2, (7 - coord.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE }, Palette::debug[colour]);
+		int flipOffset = mIsFlipped ? coord.getRank() : 7 - coord.getRank();
+		drawSquare({ mPosX + coord.getFile() * SQUARE_SIZE, mPosY + flipOffset * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE }, Palette::debug[colour]);
 	}
 }

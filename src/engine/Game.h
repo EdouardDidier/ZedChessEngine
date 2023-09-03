@@ -31,7 +31,7 @@ using namespace std;
 class Game
 {
 public:
-	Game(Board *pBoard = NULL);
+	Game(Board *pBoard);
 	~Game();
 
 	bool init();
@@ -57,8 +57,6 @@ public:
 
 	bool iaPlay();
 
-	Coord getBoardCoord(int y, int x);
-
 	void addHighlightSquare(int square, int type, bool persist = false);
 	void clearHighlightSquares(int typeHighlight = -1);
 
@@ -68,8 +66,6 @@ private:
 	Move asyncSearch();
 
 private:
-	bool isPrivateBoard = true;
-
 	Timer mTimer;
 	Graphic mGraphic;
 	Audio mAudio;
@@ -85,7 +81,7 @@ private:
 
 	Board* mpBoard;
 	
-	SearchV4 mSearchWhite;
+	SearchV5 mSearchWhite;
 	SearchV5 mSearchBlack;
 	std::future<Move> mSearchMoveResult;
 

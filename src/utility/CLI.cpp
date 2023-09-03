@@ -1,11 +1,11 @@
 #include "CLI.h"
 
-CLI::CLI() {
-	mpBoard = new Board();
+CLI::CLI(Board *pBoard) {
+	pBoard = pBoard;
 }
 
 CLI::~CLI() {
-	delete mpBoard;
+
 }
 
 bool  CLI::init() {

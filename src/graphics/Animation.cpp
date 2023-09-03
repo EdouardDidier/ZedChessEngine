@@ -10,11 +10,14 @@ Animation::Animation(Graphic *pGraphic, Move move, int piece, int targetPiece) {
 	Coord mStartPos = Coord(move.getStartSquare());
 	Coord mTargetPos = Coord(move.getTargetSquare());
 
-	mStartX = (mStartPos.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2;
-	mStartY = (7 - mStartPos.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2;
+	int flipOffset = pGraphic->isFlipped() ? mStartPos.getRank() : 7 - mStartPos.getRank();
+	mStartX = pGraphic->getPosX() + mStartPos.getFile() * SQUARE_SIZE;
+	mStartY = pGraphic->getPosY() + flipOffset * SQUARE_SIZE;
 
-	mTargetX = (mTargetPos.getFile() - 4) * SQUARE_SIZE + WINDOW_WIDTH / 2;
-	mTargetY = (7 - mTargetPos.getRank() - 4) * SQUARE_SIZE + WINDOW_HEIGHT / 2;
+
+	flipOffset = pGraphic->isFlipped() ? mTargetPos.getRank() : 7 - mTargetPos.getRank();
+	mTargetX = pGraphic->getPosX() + mTargetPos.getFile() * SQUARE_SIZE;
+	mTargetY = pGraphic->getPosY() + flipOffset * SQUARE_SIZE;
 
 	mProgress = 0;
 }

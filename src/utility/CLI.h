@@ -22,7 +22,7 @@ using namespace std;
 class CLI
 {
 public:
-	CLI();
+	CLI(Board *pBoard);
 	~CLI();
 
 	bool init();

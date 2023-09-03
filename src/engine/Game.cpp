@@ -1,31 +1,29 @@
 #include "Game.h"
 
-Game::Game(Board *pBoard) {
+Game::Game(Board* pBoard)
+	: mGraphic(-4 * SQUARE_SIZE + WINDOW_WIDTH / 2, -4 * SQUARE_SIZE + WINDOW_HEIGHT / 2)
+{
 	// Initilizing empty arrays for highlighted square tacking
 	for (int i = 0; i < PALETTE_HIGHLIGHT_SIZE; i++) {
 		mHighlightSquares[i] = vector<int>();
 	}
 
-	if (pBoard == NULL) {
-		// Creating the chess data
-		mpBoard = new Board();
+	// No piece selected at start
+	mSelectedSquare = -1;
+	mDraggedPiece = -1;
+	mToUnselectFlag = false;
 
-		// Load start position from Fen string
-		mpBoard->loadStartPosition();
-	}
-	else {
-		mpBoard = pBoard;
-		isPrivateBoard = false;
-	}
+	mHoverSquare = Coord();
 
-	//mSearchWhite.init(mpBoard);
-	//mSearchBlack.init(mpBoard);
+	mpBoard = pBoard;
+
+	// Generate first set of legal moves
+	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard, mCapturedOnly); //TODO: probably move this in each player class
 }
 
 Game::~Game()
 {
-	if (isPrivateBoard)
-		delete mpBoard;
+
 }
 
 bool Game::init() {
@@ -35,16 +33,6 @@ bool Game::init() {
 
 	if (!mAudio.init())
 		return false;
-
-	// No piece selected at start
-	mSelectedSquare = -1;
-	mDraggedPiece = -1;
-	mToUnselectFlag = false;
-
-	mHoverSquare = Coord();
-
-	// Generate first set of legal moves
-	mLegalMoves = mMoveGenerator.generateLegalMove(mpBoard, mCapturedOnly);
 
 	return true;
 }
@@ -138,7 +126,7 @@ void Game::run()
 		mGraphic.update();
 		
 		// Handle IA play
-		if ((1 || mpBoard->colourToMove == Piece::black) && !mIsGameOver && !mIsPaused) {
+		if ((0 && mpBoard->colourToMove == Piece::black) && !mIsGameOver && !mIsPaused) {
 			delay += (Uint64)elapsed;
 			if (delay > 200) {
 				iaPlay();
@@ -182,7 +170,7 @@ bool Game::handleGeneralEvents(SDL_Event &e, int x, int y) {
 	case SDL_QUIT:
 		return true;
 	case SDL_MOUSEMOTION:
-		mHoverSquare = Coord(getBoardCoord(y, x));
+		mHoverSquare = Coord(mGraphic.getBoardCoord(y, x));
 		break;
 	case SDL_KEYDOWN:
 		switch (e.key.keysym.sym) {
@@ -222,6 +210,10 @@ void Game::handleGameEvents(SDL_Event &e, Uint32 pMouseState, const Uint8 *pKeyb
 			mIsPaused = true;
 			redoMove();
 			break;
+		case SDLK_f:
+			mGraphic.flip();
+			unSelectSquare();
+			break;
 		case SDLK_r:
 			mPromotionMove = Move(0);
 
@@ -239,7 +231,7 @@ void Game::handleGameEvents(SDL_Event &e, Uint32 pMouseState, const Uint8 *pKeyb
 			break;
 		}
 	case SDL_MOUSEBUTTONDOWN:
-		mHoverSquare = Coord(getBoardCoord(y, x));
+		mHoverSquare = Coord(mGraphic.getBoardCoord(y, x));
 
 		switch (e.button.button) {
 		case SDL_BUTTON_LEFT:
@@ -319,12 +311,14 @@ void Game::handlePromotionMenuEvents(SDL_Event &e, int x, int y) {
 		switch (e.button.button) {
 		case SDL_BUTTON_LEFT:
 
-			Coord hoverSquare = getBoardCoord(y, x);
+			Coord hoverSquare = mGraphic.getBoardCoord(y, x);
 
 			if (hoverSquare.isInBoard()) {
 				Coord squareToPromote = Coord(mPromotionMove.getTargetSquare());
 
 				if (hoverSquare.getFile() == squareToPromote.getFile()) {
+					unSelectSquare();
+
 					int selection = squareToPromote.getRank() - hoverSquare.getRank();
 					int coulour = Piece::white;
 					int flag = Move::Flag::promoteToQueen;
@@ -332,6 +326,11 @@ void Game::handlePromotionMenuEvents(SDL_Event &e, int x, int y) {
 					if (squareToPromote.getRank() == 0) {
 						coulour = Piece::black;
 						selection = -selection;
+					}
+
+					if (selection > 3) {
+						mPromotionMove = Move(0);
+						break;
 					}
 
 					switch(selection) {
@@ -347,7 +346,6 @@ void Game::handlePromotionMenuEvents(SDL_Event &e, int x, int y) {
 					}
 
 					makeMove(Move(mPromotionMove.moveValue | (flag << 12)));
-					unSelectSquare();
 				}
 			}
 
@@ -573,7 +571,7 @@ Move Game::asyncSearch() {
 	Move move = Move::invalidMove();
 
 	if (mpBoard->colourToMove == Piece::white) {
-		mSearchWhite.searchMove(mpBoard, 5);
+		mSearchWhite.searchMove(mpBoard, 2000);
 		move = mSearchWhite.getBestMove();
 	}
 	else {
@@ -582,28 +580,6 @@ Move Game::asyncSearch() {
 	}
 
 	return move;
-}
-
-Coord Game::getBoardCoord(int y, int x)
-{
-	x -= WINDOW_WIDTH / 2 - SQUARE_SIZE * 4;
-	y -= WINDOW_HEIGHT / 2 - SQUARE_SIZE * 4;
-
-	if (x >= 0 && x <= SQUARE_SIZE * 8
-		&& y >= 0 && y <= SQUARE_SIZE * 8)
-	{
-		x /= SQUARE_SIZE;
-		y /= SQUARE_SIZE;
-
-		y = 7 - y; // Reverse Y coordinate to read board from bottom to top
-	}
-	else
-	{
-		x = -1;
-		y = -1;
-	}
-
-	return Coord(y, x);
 }
 
 void Game::addHighlightSquare(int square, int type, bool persist) {
