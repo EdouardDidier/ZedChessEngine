@@ -61,11 +61,14 @@
     <Filter Include="Fichiers de ressources\graphics">
       <UniqueIdentifier>{1c3d5d05-57ee-4367-8547-b3b6a37a1711}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Fichiers de ressources\graphics\sprites">
-      <UniqueIdentifier>{5c83c621-0577-4d3c-b954-23351042e902}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Fichiers de ressources\fonts">
       <UniqueIdentifier>{b0005ef3-9289-4fe1-ab71-67eb9cf0aae0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers de ressources\graphics\pieces">
+      <UniqueIdentifier>{5c83c621-0577-4d3c-b954-23351042e902}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers de ressources\graphics\avatars">
+      <UniqueIdentifier>{5e6cf609-52b1-42cf-a7d8-5033c8c2a897}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -151,7 +154,7 @@
       <Filter>Fichiers sources\Engine</Filter>
     </ClCompile>
     <ClCompile Include="src\ai\PieceSquareTables.cpp">
-      <Filter>Fichiers sources</Filter>
+      <Filter>Fichiers sources\Engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -267,47 +270,14 @@
     </Media>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resources\graphics\sprites\bb.png">
-      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    <Image Include="resources\graphics\pieces\capturedPieces.png">
+      <Filter>Fichiers de ressources\graphics\pieces</Filter>
     </Image>
-    <Image Include="resources\graphics\sprites\bk.png">
-      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    <Image Include="resources\graphics\pieces\pieces.png">
+      <Filter>Fichiers de ressources\graphics\pieces</Filter>
     </Image>
-    <Image Include="resources\graphics\sprites\bn.png">
-      <Filter>Fichiers de ressources\graphics\sprites</Filter>
-    </Image>
-    <Image Include="resources\graphics\sprites\bp.png">
-      <Filter>Fichiers de ressources\graphics\sprites</Filter>
-    </Image>
-    <Image Include="resources\graphics\sprites\bq.png">
-      <Filter>Fichiers de ressources\graphics\sprites</Filter>
-    </Image>
-    <Image Include="resources\graphics\sprites\br.png">
-      <Filter>Fichiers de ressources\graphics\sprites</Filter>
-    </Image>
-    <Image Include="resources\graphics\sprites\pieces.png">
-      <Filter>Fichiers de ressources\graphics\sprites</Filter>
-    </Image>
-    <Image Include="resources\graphics\sprites\pieces150x150.png">
-      <Filter>Fichiers de ressources\graphics\sprites</Filter>
-    </Image>
-    <Image Include="resources\graphics\sprites\wb.png">
-      <Filter>Fichiers de ressources\graphics\sprites</Filter>
-    </Image>
-    <Image Include="resources\graphics\sprites\wk.png">
-      <Filter>Fichiers de ressources\graphics\sprites</Filter>
-    </Image>
-    <Image Include="resources\graphics\sprites\wn.png">
-      <Filter>Fichiers de ressources\graphics\sprites</Filter>
-    </Image>
-    <Image Include="resources\graphics\sprites\wp.png">
-      <Filter>Fichiers de ressources\graphics\sprites</Filter>
-    </Image>
-    <Image Include="resources\graphics\sprites\wq.png">
-      <Filter>Fichiers de ressources\graphics\sprites</Filter>
-    </Image>
-    <Image Include="resources\graphics\sprites\wr.png">
-      <Filter>Fichiers de ressources\graphics\sprites</Filter>
+    <Image Include="resources\graphics\avatars\avatars.png">
+      <Filter>Fichiers de ressources\graphics\avatars</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

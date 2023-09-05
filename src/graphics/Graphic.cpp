@@ -15,19 +15,38 @@ map<int, int> Graphic::mPieceToGraphic = {
 	{Piece::black | Piece::pawn, 11}
 };
 
+const int Graphic::maxCapturedPieces[] = {
+	0, 0, 8, 2, 0, 2, 2, 1,
+	0, 0, 8, 2, 0, 2, 2, 1
+};
+
 Graphic::Graphic(int x, int y)
 	: mPosX(x), mPosY(y), mIsFlipped(false)
 {
 	mpWindow = NULL;
 	mpRenderer = NULL;
-	mpFont = NULL;
+	
+	for (int i = 0; i < 3; i++) {
+		mpFonts[i] = NULL;
+	}
 
 	mpPiecesTextures = new SDL_Texture *[12];
+	mpAvatarsTextures = new SDL_Texture *[2];
+
+	mpCapturedPiecesTextures = new SDL_Texture **[16];
+	for (int i = 0; i < 16; i++)
+		mpCapturedPiecesTextures[i] = new SDL_Texture * [maxCapturedPieces[i]];
 }
 
 Graphic::~Graphic()
 {
-	delete mpPiecesTextures;
+	delete[] mpPiecesTextures;
+	delete[] mpAvatarsTextures;
+
+	for (int i = 0; i < 16; i++)
+		delete[] mpCapturedPiecesTextures[i];
+
+	delete[] mpCapturedPiecesTextures;
 }
 
 bool Graphic::init() 
@@ -65,10 +84,18 @@ bool Graphic::init()
 	// Enable blen mode
 	SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_BLEND);
 	
-
-	//Make sure sprites load succeeded. If failed, end program.
+	//Make sure pieces textures load succeeded. If failed, end program.
 	if (!this->loadPieces()) {
+		return false;
+	}	
 
+	//Make sure captured pieces textures load succeeded. If failed, end program.
+	if (!this->loadCapturedPieces()) {
+		return false;
+	}	
+
+	//Make sure avatars textures load succeeded. If failed, end program.
+	if (!this->loadAvatars()) {
 		return false;
 	}
 
@@ -92,6 +119,21 @@ void Graphic::kill() {
 	{
 		SDL_DestroyTexture(mpPiecesTextures[i]);
 		mpPiecesTextures[i] = NULL;
+	}
+
+	for (int i = 0; i < 2; i++)
+	{
+		SDL_DestroyTexture(mpAvatarsTextures[i]);
+		mpAvatarsTextures[i] = NULL;
+	}
+
+	for (int i = 0; i < 16; i++) 
+	{
+		for (int j = 0; j < maxCapturedPieces[i]; j++)
+		{
+			SDL_DestroyTexture(mpCapturedPiecesTextures[i][j]);
+			mpCapturedPiecesTextures[i][j] = NULL;
+		}
 	}
 
 	SDL_DestroyRenderer(mpRenderer);
@@ -129,8 +171,8 @@ void Graphic::drawCoordinate() {
 	for (int i = 0; i < 8; i++) {
 		int color = i % 2 ? 2 : 1;
 
-		drawText(fileC, mPosX + 6, mPosY + (7 - i) * SQUARE_SIZE + 6, color);
-		drawText(rankC, mPosX + i * SQUARE_SIZE + 80, mPosY + 8 * SQUARE_SIZE - 30, color);
+		drawText(fileC, mPosX + 6, mPosY + (7 - i) * SQUARE_SIZE + 6, color, 24, FontStyle::bold);
+		drawText(rankC, mPosX + i * SQUARE_SIZE + 80, mPosY + 8 * SQUARE_SIZE - 30, color, 24, FontStyle::bold);
 
 		if (!mIsFlipped) {
 			fileC[0]++;
@@ -242,7 +284,7 @@ void Graphic::drawPieceAtMouse(int draggedPiece) {
 	int posX, posY;
 	SDL_GetMouseState(&posX, &posY);
 
-	this->drawPiece(draggedPiece, posX - SQUARE_SIZE / 2, posY - SQUARE_SIZE / 2);
+	drawPiece(draggedPiece, posX - SQUARE_SIZE / 2, posY - SQUARE_SIZE / 2);
 }
 
 void Graphic::drawPiece(int piece, int x, int y) {
@@ -254,9 +296,78 @@ void Graphic::drawPiece(int piece, Coord coord) {
 	drawPiece(piece, mPosX + coord.getFile() * SQUARE_SIZE, mPosY + (7 - coord.getRank()) * SQUARE_SIZE);
 }
 
+void Graphic::drawPlayerInfo(Board *pBoard) {
+	const int whiteX = mPosX + 820;
+	const int whiteY = mPosY + (mIsFlipped ? 750 : 0);
+	
+	const int blackX = mPosX + 820;
+	const int blackY = mPosY + (!mIsFlipped ? 750 : 0);
+
+	SDL_Rect dest;
+
+	// Draw white infos
+	dest = { whiteX, whiteY, 50, 50};
+	SDL_RenderCopy(mpRenderer, mpAvatarsTextures[1], NULL, &dest);
+	
+	drawText("ZedChess", whiteX + 60, whiteY, 3);
+	drawCapturedPieces(pBoard, whiteX + 60, whiteY + 28, true);
+
+	// Draw black infos
+	dest = { blackX, blackY, 50, 50 };
+	SDL_RenderCopy(mpRenderer, mpAvatarsTextures[0], NULL, &dest);
+	
+	drawText("Player", blackX + 60, blackY, 3);
+	drawCapturedPieces(pBoard, blackX + 60, blackY + 28, false);
+
+	drawClocks();
+}
+
+void Graphic::drawCapturedPieces(Board *pBoard, int x, int y, bool isWhiteInfo) {
+	SDL_Rect dest;
+	
+	int startIndex = isWhiteInfo ? 0 : 8;
+	int endIndex = isWhiteInfo ? 8 : 16;
+	
+	int colour = isWhiteInfo ? Piece::white : Piece::black;
+	int opponentColour = isWhiteInfo ? Piece::black : Piece::white;
+	int colourIndex = isWhiteInfo ? Board::whiteIndex : Board::blackIndex;
+
+	// Displaying captured pieces textures
+	for (int piece = startIndex; piece < endIndex; piece++)
+	{
+		int pieceType = Piece::pieceType(piece);
+		int maxPiece = maxCapturedPieces[piece];
+		int numPieceCaptured = maxPiece - pBoard->getPieceList(pieceType, colour)->count();
+
+		if (numPieceCaptured < 1)
+			continue;
+		
+		int w = 0, h = 0;
+		SDL_QueryTexture(mpCapturedPiecesTextures[piece][numPieceCaptured - 1], NULL, NULL, &w, &h);
+			
+		dest = { x, y, w, h};
+		SDL_RenderCopy(mpRenderer, mpCapturedPiecesTextures[piece][numPieceCaptured - 1], NULL, &dest);
+
+		x += w + 2;
+	}
+
+	// Calculating score difference and displaying it
+	int score = 0;
+	for (int i = 0; i < 8; i++) {
+		score += (pBoard->getPieceList(Piece::pieceType(i), opponentColour)->count() - pBoard->getPieceList(Piece::pieceType(i), colour)->count()) * Piece::simpleValue[i];
+	}
+
+	if (score > 0)
+		drawText("+"s + std::to_string(score), x + 4, y + 2, 0, 14);
+}
+
+void Graphic::drawClocks() {
+
+}
+
 void Graphic::drawGameOver(bool whiteWin, bool isDraw) {
 	string str = isDraw ? "Draw" : (whiteWin ? "White wins !" : "Black wins !");
-	drawText(str, 10, 10, 0);
+	drawText(str, mPosX, 10, 0);
 }
 
 void Graphic::drawSquare(SDL_Rect dest, SDL_Colour colour) {
@@ -267,19 +378,28 @@ void Graphic::drawSquare(SDL_Rect dest, SDL_Colour colour) {
 	SDL_RenderFillRect(mpRenderer, &dest);
 }
 
-void Graphic::drawText(string str, int x, int y, int color) {
-	if (color < 0 || color > PALETTE_TEXT_SIZE - 1) color = 0; // Set default color if color not in palette range
+void Graphic::drawText(string str, int x, int y, int colour, int size, FontStyle style) {
+	if (colour < 0 || colour > PALETTE_TEXT_SIZE - 1) colour = 0; // Set default color if color not in palette range
 	
 	SDL_Rect dest;
-	int w, h;
 
-	for (char& c : str) {
-		SDL_QueryTexture(mpCharTextures[color][c], NULL, NULL, &w, &h);
-		dest = { x, y, w, h };
-		SDL_RenderCopy(mpRenderer, mpCharTextures[color][c], NULL, &dest);
+	//Creating textures for characters
+	TTF_SetFontSize(mpFonts[(int)style], size);
+	SDL_Surface *pSurfaceBuffer = TTF_RenderText_Blended(mpFonts[(int)style], str.c_str(), Palette::text[colour]);
+	SDL_Texture *pSurfaceTexture = SDL_CreateTextureFromSurface(mpRenderer, pSurfaceBuffer);
 
-		x += w;
+	//Make sure creating sprite succeeded
+	if (!pSurfaceTexture) {
+		cout << "Error creating character texture: " << SDL_GetError() << endl;
+		return;
 	}
+
+	dest = { x, y, pSurfaceBuffer->w, pSurfaceBuffer->h };
+	SDL_RenderCopy(mpRenderer, pSurfaceTexture, NULL, &dest);
+
+	//Freeing temp surface
+	SDL_FreeSurface(pSurfaceBuffer);
+	SDL_DestroyTexture(pSurfaceTexture);
 }
 
 void Graphic::drawPromotionMenu(int squareToPromote) {
@@ -375,14 +495,14 @@ bool Graphic::loadPieces()
 	}
 
 	//Creating textures for the 12 pieces
-	SDL_Surface* pBuffer = new SDL_Surface ;
+	SDL_Surface* pBuffer = NULL;
 	for (int y = 0; y < 2; y++)
 	{
 		for (int x = 0; x < 6; x++)
 		{
 			//Loading to temp surface
-			SDL_Rect src = { x * SPRITE_SIZE, y * SPRITE_SIZE, SPRITE_SIZE, SPRITE_SIZE }; //Each sprite is 150x150
-			pBuffer = SDL_CreateRGBSurface(0, SPRITE_SIZE, SPRITE_SIZE, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
+			SDL_Rect src = { x * PIECE_SPRITE_SIZE, y * PIECE_SPRITE_SIZE, PIECE_SPRITE_SIZE, PIECE_SPRITE_SIZE }; //Each sprite is 150x150
+			pBuffer = SDL_CreateRGBSurface(0, PIECE_SPRITE_SIZE, PIECE_SPRITE_SIZE, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
 			SDL_BlitSurface(pImageLoaded, &src, pBuffer, NULL);
 
 			//Transfering surface to texture
@@ -406,34 +526,108 @@ bool Graphic::loadPieces()
 	return true;
 }
 
-bool Graphic::loadFont() {
-	mpFont = TTF_OpenFont(PATH_FONT, 24);
-
-	if (mpFont == NULL)
+bool Graphic::loadCapturedPieces() {
+	//Loading image with pieces
+	SDL_Surface* pImageLoaded = IMG_Load(PATH_CAPTURED_PIECES);
+	if (!pImageLoaded) {
+		cout << "Error loading image: " << SDL_GetError() << endl;
 		return false;
+	}
 
-	//Creating textures for characters
-	SDL_Surface *pBuffer = new SDL_Surface;
-	for (int i = 0; i < PALETTE_TEXT_SIZE; i++) {
-		for (int j = 32; j < 127; j++) // Computing all characters from space (32) to '~' (126)
+	//Creating textures for the 12 pieces
+	SDL_Surface* pBuffer = NULL;
+	int xOffset = 0;
+	for (int i = 0; i < 16; i++)
+	{
+		int pieceType = Piece::pieceType(i);
+		int pieceWidth = 0;
+
+		switch (pieceType) {
+		case Piece::pawn:
+			pieceWidth = CAPTURED_PIECES_SPRITE_PAWN_WIDTH;
+			break;
+		case Piece::queen:
+			pieceWidth = CAPTURED_PIECES_SPRITE_QUEEN_WIDTH;
+			break;
+		default:
+			pieceWidth = CAPTURED_PIECES_SPRITE_MINOR_WIDTH;
+		}
+
+		int maxPiece = maxCapturedPieces[i];
+		for (int j = 0; j < maxPiece; j++)
 		{
-
 			//Loading to temp surface
-			pBuffer = TTF_RenderText_Blended(mpFont, (const char*)&j, Palette::text[i]);
+			SDL_Rect src = { xOffset, (maxPiece - j - 1) * CAPTURED_PIECES_SPRITE_HEIGHT, pieceWidth, CAPTURED_PIECES_SPRITE_HEIGHT };
+			pBuffer = SDL_CreateRGBSurface(0, pieceWidth, CAPTURED_PIECES_SPRITE_HEIGHT, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
+			SDL_BlitSurface(pImageLoaded, &src, pBuffer, NULL);
 
 			//Transfering surface to texture
-			mpCharTextures[i].insert({ (char)j, SDL_CreateTextureFromSurface(mpRenderer, pBuffer) });
+			mpCapturedPiecesTextures[i][j] = SDL_CreateTextureFromSurface(mpRenderer, pBuffer);
 
 			//Freeing temp surface
 			SDL_FreeSurface(pBuffer);
 
 			//Make sure creating sprite succeeded
-			if (!mpCharTextures[i][(char)j]) {
-				cout << "Error creating character texture: " << SDL_GetError() << endl;
+			if (!mpCapturedPiecesTextures[i][j]) {
+				cout << "Error creating texture: " << SDL_GetError() << endl;
 				return false;
 			}
+
+			if (j < maxPiece - 1)
+				pieceWidth += CAPTURED_PIECES_SPRITE_MULTIPLE_WIDTH;
+		}
+
+		if (maxPiece > 0)
+			xOffset += pieceWidth;
+	}
+
+	//Freeing main image
+	SDL_FreeSurface(pImageLoaded);
+	pImageLoaded = NULL;
+
+	return true;
+}
+
+bool Graphic::loadAvatars() {
+	SDL_Surface* pImageLoaded = IMG_Load(PATH_AVATARS);
+	if (!pImageLoaded) {
+		cout << "Error loading image: " << SDL_GetError() << endl;
+		return false;
+	}
+	
+	// Creating texture for avatars
+	SDL_Surface* pBuffer = NULL;
+	for (int i = 0; i < 2; i++)	{
+		//Loading to temp surface
+		SDL_Rect src = { i * AVATAR_SPRITE_SIZE, 0, AVATAR_SPRITE_SIZE, AVATAR_SPRITE_SIZE };
+		pBuffer = SDL_CreateRGBSurface(0, AVATAR_SPRITE_SIZE, AVATAR_SPRITE_SIZE, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
+		SDL_BlitSurface(pImageLoaded, &src, pBuffer, NULL);
+
+		//Transfering surface to texture
+		mpAvatarsTextures[i] = SDL_CreateTextureFromSurface(mpRenderer, pBuffer);
+
+		//Freeing temp surface
+		SDL_FreeSurface(pBuffer);
+
+		//Make sure creating sprite succeeded
+		if (!mpAvatarsTextures[i]) {
+			cout << "Error creating texture: " << SDL_GetError() << endl;
+			return false;
 		}
 	}
+
+	return true;
+}
+
+bool Graphic::loadFont() {
+	const int defaultSize = 24;
+	
+	mpFonts[(int)FontStyle::normal] = TTF_OpenFont(PATH_FONT, defaultSize);
+	mpFonts[(int)FontStyle::bold] = TTF_OpenFont(PATH_FONT_BOLD, defaultSize);
+	mpFonts[(int)FontStyle::italic] = TTF_OpenFont(PATH_FONT_ITALIC, defaultSize);
+	
+	if (mpFonts == NULL)
+		return false;
 
 	return true;
 }
@@ -442,7 +636,7 @@ void Graphic::debugDrawSquareIndex() {
 	for (int y = 0; y < 8; y++)	{
 		for (int x = 0; x < 8; x++)	{
 			int flipOffset = mIsFlipped ? y : 7 - y;
-			drawText(to_string(x + y * 8), mPosX + x * SQUARE_SIZE + 6, mPosY + flipOffset * SQUARE_SIZE + 70, 3);
+			drawText(to_string(x + y * 8), mPosX + x * SQUARE_SIZE + 6, mPosY + flipOffset * SQUARE_SIZE + 70, 5);
 		}
 	}
 }

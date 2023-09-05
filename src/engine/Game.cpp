@@ -68,6 +68,9 @@ void Game::run()
 		// Draw background
 		mGraphic.drawBackground();
 
+		// Draw player infos
+		mGraphic.drawPlayerInfo(mpBoard);
+
 		// Draw the chess board
 		mGraphic.drawBoard();
 
@@ -126,7 +129,7 @@ void Game::run()
 		mGraphic.update();
 		
 		// Handle IA play
-		if ((0 && mpBoard->colourToMove == Piece::black) && !mIsGameOver && !mIsPaused) {
+		if ((1 || mpBoard->colourToMove == Piece::black) && !mIsGameOver && !mIsPaused) {
 			delay += (Uint64)elapsed;
 			if (delay > 200) {
 				iaPlay();

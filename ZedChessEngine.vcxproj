@@ -215,20 +215,9 @@
     <Media Include="resources\audio\tenseconds.wav" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resources\graphics\sprites\bb.png" />
-    <Image Include="resources\graphics\sprites\bk.png" />
-    <Image Include="resources\graphics\sprites\bn.png" />
-    <Image Include="resources\graphics\sprites\bp.png" />
-    <Image Include="resources\graphics\sprites\bq.png" />
-    <Image Include="resources\graphics\sprites\br.png" />
-    <Image Include="resources\graphics\sprites\pieces.png" />
-    <Image Include="resources\graphics\sprites\pieces150x150.png" />
-    <Image Include="resources\graphics\sprites\wb.png" />
-    <Image Include="resources\graphics\sprites\wk.png" />
-    <Image Include="resources\graphics\sprites\wn.png" />
-    <Image Include="resources\graphics\sprites\wp.png" />
-    <Image Include="resources\graphics\sprites\wq.png" />
-    <Image Include="resources\graphics\sprites\wr.png" />
+    <Image Include="resources\graphics\avatars\avatars.png" />
+    <Image Include="resources\graphics\pieces\capturedPieces.png" />
+    <Image Include="resources\graphics\pieces\pieces.png" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="resources\fonts\arial.ttf" />

@@ -18,6 +18,8 @@ public:
 	static const int white = 8;
 	static const int black = 16;
 
+	static const int simpleValue[];
+
 	// Creating mask to filter easily on specifics datas
 	static const int typeMask = 0b00111;
 	static const int whiteMask = 0b01000;

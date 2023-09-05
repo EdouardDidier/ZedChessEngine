@@ -1,5 +1,9 @@
 #include "Piece.h"
 
+const int Piece::simpleValue[] = {
+	0, 0, 1, 3, 0, 3, 5, 9
+};
+
 Piece::Piece() {
 
 }

@@ -5,10 +5,12 @@ const SDL_Color Palette::dark = { 118, 150, 86, 255 };
 const SDL_Color Palette::hover = { 255, 255, 255,  166 };
 const SDL_Color Palette::hint = { 0, 0, 0,  26 };
 const SDL_Color Palette::text[PALETTE_TEXT_SIZE] = {
-	{ 152, 151, 149, 255 },
-	Palette::light,
-	Palette::dark,
-	{ 255, 0, 255, 255 }
+	{ 152, 151, 149, 255 },	// Default
+	Palette::light,			// Light square color
+	Palette::dark,			// Dark square color
+	{ 255, 255, 255, 255},	// White
+	{ 0, 0, 0, 255 },		// Black
+	{ 255, 0, 255, 255 }	// Debug color
 };
 const SDL_Color Palette::highlight[PALETTE_HIGHLIGHT_SIZE] = {
 	{ 255, 255, 0, 127 },	// Last Move
