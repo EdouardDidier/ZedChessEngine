@@ -296,41 +296,39 @@ void Graphic::drawPiece(int piece, Coord coord) {
 	drawPiece(piece, mPosX + coord.getFile() * SQUARE_SIZE, mPosY + (7 - coord.getRank()) * SQUARE_SIZE);
 }
 
-void Graphic::drawPlayerInfo(Board *pBoard) {
-	const int whiteX = mPosX + 820;
-	const int whiteY = mPosY + (mIsFlipped ? 750 : 0);
+void Graphic::drawPlayerInfos(Board *pBoard, Player &playerWhite, Player &playerBlack) {
+	const int whiteX = mPosX + SQUARE_SIZE * 8 + 20;
+	const int whiteY = mPosY + (mIsFlipped ? 0 : SQUARE_SIZE * 8 - 50);
 	
-	const int blackX = mPosX + 820;
-	const int blackY = mPosY + (!mIsFlipped ? 750 : 0);
+	const int blackX = whiteX;
+	const int blackY = mPosY + (!mIsFlipped ? 0 : SQUARE_SIZE * 8 - 50);
 
-	SDL_Rect dest;
+	// Draw white and black infos
+	drawPlayerInfo(pBoard, playerWhite.name, true, whiteX, whiteY);
+	drawPlayerInfo(pBoard, playerBlack.name, false, blackX, blackY);
 
-	// Draw white infos
-	dest = { whiteX, whiteY, 50, 50};
-	SDL_RenderCopy(mpRenderer, mpAvatarsTextures[1], NULL, &dest);
-	
-	drawText("ZedChess", whiteX + 60, whiteY, 3);
-	drawCapturedPieces(pBoard, whiteX + 60, whiteY + 28, true);
-
-	// Draw black infos
-	dest = { blackX, blackY, 50, 50 };
-	SDL_RenderCopy(mpRenderer, mpAvatarsTextures[0], NULL, &dest);
-	
-	drawText("Player", blackX + 60, blackY, 3);
-	drawCapturedPieces(pBoard, blackX + 60, blackY + 28, false);
-
+	// Draw clocks
 	drawClocks();
 }
 
-void Graphic::drawCapturedPieces(Board *pBoard, int x, int y, bool isWhiteInfo) {
+void Graphic::drawPlayerInfo(Board* pBoard, string str, bool isWhiteInfo, int x, int y) {
+	int avatarIndex = isWhiteInfo ? Board::whiteIndex : Board::blackIndex;
+
+	SDL_Rect dest = { x, y, 50, 50 };
+	SDL_RenderCopy(mpRenderer, mpAvatarsTextures[avatarIndex], NULL, &dest);
+	drawText(str, x + 60, y, 3, 20);
+	drawCapturedPieces(pBoard, isWhiteInfo, x + 60, y + 28);
+}
+
+void Graphic::drawCapturedPieces(Board *pBoard, bool isWhiteInfo, int x, int y) {
 	SDL_Rect dest;
 	
-	int startIndex = isWhiteInfo ? 0 : 8;
-	int endIndex = isWhiteInfo ? 8 : 16;
+	int startIndex = isWhiteInfo ? 8 : 0;
+	int endIndex = isWhiteInfo ? 16 : 8;
 	
-	int colour = isWhiteInfo ? Piece::white : Piece::black;
-	int opponentColour = isWhiteInfo ? Piece::black : Piece::white;
-	int colourIndex = isWhiteInfo ? Board::whiteIndex : Board::blackIndex;
+	int colour = isWhiteInfo ? Piece::black : Piece::white;
+	int opponentColour = isWhiteInfo ? Piece::white : Piece::black;
+	int colourIndex = isWhiteInfo ? Board::blackIndex : Board::whiteIndex;
 
 	// Displaying captured pieces textures
 	for (int piece = startIndex; piece < endIndex; piece++)
@@ -362,7 +360,9 @@ void Graphic::drawCapturedPieces(Board *pBoard, int x, int y, bool isWhiteInfo) 
 }
 
 void Graphic::drawClocks() {
-
+	drawText("3:00.0", mPosX + 820, mPosY + 4 * SQUARE_SIZE - 42, 0, 48);
+	
+	drawText("3:00.0", mPosX + 820, mPosY + 4 * SQUARE_SIZE + 10, 0, 48);
 }
 
 void Graphic::drawGameOver(bool whiteWin, bool isDraw) {
@@ -636,7 +636,7 @@ void Graphic::debugDrawSquareIndex() {
 	for (int y = 0; y < 8; y++)	{
 		for (int x = 0; x < 8; x++)	{
 			int flipOffset = mIsFlipped ? y : 7 - y;
-			drawText(to_string(x + y * 8), mPosX + x * SQUARE_SIZE + 6, mPosY + flipOffset * SQUARE_SIZE + 70, 5);
+			drawText(to_string(x + y * 8), mPosX + x * SQUARE_SIZE + 6, mPosY + flipOffset * SQUARE_SIZE + 70, 5, 24, FontStyle::bold);
 		}
 	}
 }

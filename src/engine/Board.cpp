@@ -21,7 +21,7 @@ Board::Board() {
 }
 
 Board::~Board() {
-	delete squares;
+	delete[] squares;
 	
 	deletePieceArrays();
 }

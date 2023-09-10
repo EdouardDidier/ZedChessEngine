@@ -14,22 +14,40 @@
 
 using namespace std;
 
-class SearchV5
+class Search
+{
+protected:
+	Profiler mProfiler;
+
+	Board* mpBoard;
+	MoveGenerator mMoveGenerator;
+
+	Move mBestMove;
+	int mBestEval;
+
+public:
+	Search();
+	~Search();
+
+	virtual void searchMove(Board* pBoard, int searchTime = 1000); //TODO: move time in Player class
+	virtual Move getBestMove();
+	virtual int getEval();
+};
+
+class SearchV5 : public Search
 {
 public:
+	static int getPieceValue(int pieceType);
+
 	SearchV5();
 	~SearchV5();
 
-	void searchMove(Board *pBoard, int searchTime = 1000, int maxDepth = 1000);
-	int alphaBeta(int alpha, int beta, int depthLeft, int plyCount);
-	int quiescenceSearch(int alpha, int beta);
-	
-	Move getBestMove();
-	int getEval();
-
-	static int getPieceValue(int pieceType);
+	void searchMove(Board *pBoard, int searchTime = 1000) override;
 
 private:
+	int alphaBeta(int alpha, int beta, int depthLeft, int plyCount);
+	int quiescenceSearch(int alpha, int beta);
+
 	void orderMove(vector<Move>& moves);
 	void swapMoves(vector<Move>& moves, int* moveScores, int firstIndex, int secondIndex);
 	int partitionMoves(vector<Move>& moves, int* moveScores, int start, int end);
@@ -40,20 +58,13 @@ private:
 	void abortSearch();
 
 private:
-	Profiler mProfiler;
-
-	Board *mpBoard;
 	EvaluationV5 mEvaluation;
-	MoveGenerator mMoveGenerator;
 
 	std::future<void> mTimer;
 	bool mAbortSearch;
 	bool mAbortTimer;
 
 	TranspositionTable mTranspositionTable;
-
-	Move mBestMove;
-	int mBestEval;
 
 	Move mBestMoveThisIteration;
 	int mBestEvalThisIteration;

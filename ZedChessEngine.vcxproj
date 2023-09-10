@@ -145,6 +145,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\player\Clock.cpp" />
+    <ClCompile Include="src\player\PlayerAI.cpp" />
+    <ClCompile Include="src\player\PlayerHuman.cpp" />
+    <ClCompile Include="src\player\Player.cpp" />
     <ClCompile Include="src\ai\PieceSquareTables.cpp" />
     <ClCompile Include="src\graphics\Animation.cpp" />
     <ClCompile Include="src\audio\Audio.cpp" />
@@ -175,6 +179,10 @@
     <ClCompile Include="src\utility\Zobrist.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\player\Clock.h" />
+    <ClInclude Include="src\player\PlayerAI.h" />
+    <ClInclude Include="src\player\PlayerHuman.h" />
+    <ClInclude Include="src\player\Player.h" />
     <ClInclude Include="src\ai\PieceSquareTables.h" />
     <ClInclude Include="src\graphics\Animation.h" />
     <ClInclude Include="src\audio\Audio.h" />

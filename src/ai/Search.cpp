@@ -1,15 +1,45 @@
 #include "Search.h"
 
-SearchV5::SearchV5() {
+///
+///	Start of Base class
+/// 
+
+Search::Search() 
+	: mpBoard(NULL), mBestMove(Move::invalidMove()), mBestEval(0)
+{
 	srand((unsigned)time(NULL));
+}
 
-	mBestMove = Move::invalidMove();
-	mBestEval = 0;
+Search::~Search()
+{}
 
+void Search::searchMove(Board* pBoard, int searchTime) {
+	mpBoard = new Board(*pBoard);
+
+	cout << "[Random] " << (mpBoard->whiteToMove ? "White" : "Black") << " - Generating random move ..." << endl;
+
+	vector<Move> moves = mMoveGenerator.generateLegalMove(mpBoard);
+	mBestMove = moves[rand() % moves.size()];
+}
+
+Move Search::getBestMove() {
+	return mBestMove;
+}
+
+int Search::getEval() {
+	return mBestEval;
+}
+
+///
+///	End of Base class
+/// 
+
+SearchV5::SearchV5() 
+	: Search()
+{
 	mBestMoveThisIteration = mBestMove;
 	mBestEvalThisIteration = mBestEval;
 
-	mpBoard = NULL;
 	mAbortSearch = false;
 	mAbortTimer = false;
 
@@ -24,7 +54,9 @@ SearchV5::~SearchV5() {
 
 }
 
-void SearchV5::searchMove(Board *pBoard, int searchTime, int maxDepth) {
+void SearchV5::searchMove(Board *pBoard, int searchTime) {
+	const int maxDepth = 1000;
+
 	mProfiler.startMeasure();
 
 	setTimer(searchTime);
@@ -195,14 +227,6 @@ int SearchV5::quiescenceSearch(int alpha, int beta) {
 	return alpha;
 }
 
-Move SearchV5::getBestMove() {
-	return mBestMove;
-}
-
-int SearchV5::getEval() {
-	return mBestEval;
-}
-
 void SearchV5::setTimer(int time) {
 	abortSearch();
 
@@ -210,6 +234,7 @@ void SearchV5::setTimer(int time) {
 	mTimer = std::async(std::launch::async, &SearchV5::requestAbort, this, time);
 }
 
+//TODO, base this function on timestamp to make it more accurate
 void SearchV5::requestAbort(int time) {
 	const int step = 50;
 	int count = 0;

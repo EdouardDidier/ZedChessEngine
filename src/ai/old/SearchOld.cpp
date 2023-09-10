@@ -1,6 +1,5 @@
 #include "SearchOld.h"
 
-
 /// 
 /// V1 (Random Move Generator))
 /// 

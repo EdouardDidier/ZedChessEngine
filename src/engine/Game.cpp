@@ -1,7 +1,8 @@
 #include "Game.h"
 
 Game::Game(Board* pBoard)
-	: mGraphic(-4 * SQUARE_SIZE + WINDOW_WIDTH / 2, -4 * SQUARE_SIZE + WINDOW_HEIGHT / 2)
+	: mGraphic(-4 * SQUARE_SIZE + WINDOW_WIDTH / 2, -4 * SQUARE_SIZE + WINDOW_HEIGHT / 2),
+	mPlayerWhite(this, true), mPlayerBlack(this, false)
 {
 	// Initilizing empty arrays for highlighted square tacking
 	for (int i = 0; i < PALETTE_HIGHLIGHT_SIZE; i++) {
@@ -69,7 +70,7 @@ void Game::run()
 		mGraphic.drawBackground();
 
 		// Draw player infos
-		mGraphic.drawPlayerInfo(mpBoard);
+		mGraphic.drawPlayerInfos(mpBoard, mPlayerWhite, mPlayerBlack);
 
 		// Draw the chess board
 		mGraphic.drawBoard();
@@ -125,18 +126,21 @@ void Game::run()
 		if (mIsGameOver)
 			mGraphic.drawGameOver(!mpBoard->whiteToMove, mIsDraw);
 
-		// Update the screen
-		mGraphic.update();
+		mPlayerWhite.update();
+		mPlayerBlack.update();
 		
 		// Handle IA play
-		if ((1 || mpBoard->colourToMove == Piece::black) && !mIsGameOver && !mIsPaused) {
-			delay += (Uint64)elapsed;
-			if (delay > 200) {
-				iaPlay();
-				mTimer.getElapsedTime();
-				delay = 0;
-			}
-		}
+		//if ((1 || mpBoard->colourToMove == Piece::black) && !mIsGameOver && !mIsPaused) {
+		//	delay += (Uint64)elapsed;
+		//	if (delay > 200) {
+		//		iaPlay();
+		//		mTimer.getElapsedTime();
+		//		delay = 0;
+		//	}
+		//}
+
+		// Update the screen
+		mGraphic.update();
 
 		// Handle events on queue. Return True if quit flag activated
 		quit = handleUserEvents();
@@ -158,8 +162,11 @@ bool Game::handleUserEvents() {
 		if (handleGeneralEvents(e, x, y))
 			return true;
 
+		mPlayerWhite.handleEvents(e, pKeyboardState, pMouseState, x, y);
+		mPlayerBlack.handleEvents(e, pKeyboardState, pMouseState, x, y);
+
 		if (mPromotionMove.isInvalid())
-			handleGameEvents(e, pMouseState, pKeyboardState, x, y);
+			handleGameEvents(e, pKeyboardState, pMouseState, x, y);
 		else
 			handlePromotionMenuEvents(e, x, y);
 	}
@@ -200,17 +207,17 @@ bool Game::handleGeneralEvents(SDL_Event &e, int x, int y) {
 	return false;
 }
 
-void Game::handleGameEvents(SDL_Event &e, Uint32 pMouseState, const Uint8 *pKeyboardState, int x, int y) {
+void Game::handleGameEvents(SDL_Event &e, const Uint8 *pKeyboardState, Uint32 pMouseState, int x, int y) {
 	switch (e.type) {
 	case SDL_KEYDOWN:
 		switch (e.key.keysym.sym)
 		{
 		case SDLK_LEFT:
-			mIsPaused = true;
+			pause();
 			undoMove();
 			break;
 		case SDLK_RIGHT:
-			mIsPaused = true;
+			pause();
 			redoMove();
 			break;
 		case SDLK_f:
@@ -550,41 +557,6 @@ bool Game::undoMove() {
 	return true;
 }
 
-bool Game::iaPlay() {
-	if (mSearchMoveResult.valid() == false) {
-		mLegalMoves.clear();
-		mPossibleMoves.clear();
-		mSearchMoveResult = std::async(std::launch::async, &Game::asyncSearch, this);
-	}
-	else if (mSearchMoveResult.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-		Move move = mSearchMoveResult.get();
-		
-		if (!move.isInvalid()) {
-			makeAnimatedMove(move);
-			cout << " ---> Move played: " << BoardRepresentation::getMoveString(move) << endl << endl;
-			return true;
-		}
-	}
-
-	return false;
-}
-
-Move Game::asyncSearch() {
-	//TODO: Handle async searches in player class
-	Move move = Move::invalidMove();
-
-	if (mpBoard->colourToMove == Piece::white) {
-		mSearchWhite.searchMove(mpBoard, 2000);
-		move = mSearchWhite.getBestMove();
-	}
-	else {
-		mSearchBlack.searchMove(mpBoard, 2000);
-		move = mSearchBlack.getBestMove();
-	}
-
-	return move;
-}
-
 void Game::addHighlightSquare(int square, int type, bool persist) {
 	bool toUnselect = false;
 
@@ -637,4 +609,24 @@ void Game::playSound(Move move, int targetPiece, bool inCheck) {
 	else
 		mAudio.playSound(Piece::isColour(mpBoard->getPiece(move.getTargetSquare()), Piece::white) ? Audio::moveSelf : Audio::moveOpponent);
 
+}
+
+void Game::pause()
+{
+	mIsPaused = true;
+}
+
+bool Game::isPaused()
+{
+	return mIsPaused;
+}
+
+bool Game::isGameOver()
+{
+	return mIsGameOver;
+}
+
+Board *Game::getBoard()
+{
+	return mpBoard;
 }

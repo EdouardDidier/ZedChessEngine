@@ -42,6 +42,8 @@
 #include "Palette.h"
 #include "Coord.h"
 
+#include "./src/player/Player.h"
+
 #include "./src/engine/Board.h"
 #include "./src/engine/Piece.h"
 #include "./src/engine/PieceList.h"
@@ -80,11 +82,12 @@ public:
 	//		Add arraws draw
 	//		Add player infos	Done
 	//		Add captured pieces	Done
-	//		Add a font manager
-	//		Add capcuted pieces score
+	//		Add a font manager	Done
+	//		Add capcuted pieces score	Done
 	//		Add clocks
-	void drawPlayerInfo(Board *pBoard);
-	void drawCapturedPieces(Board* pBoard, int x, int y, bool isWhiteInfo);
+	void drawPlayerInfos(Board *pBoard, Player &playerWhite, Player &playerBlack);
+	void drawPlayerInfo(Board* pBoard, string str, bool isWhiteInfo, int x, int y);
+	void drawCapturedPieces(Board* pBoard, bool isWhiteInfo, int x, int y);
 	void drawClocks();
 
 	void drawGameOver(bool whiteWin, bool isDraw);

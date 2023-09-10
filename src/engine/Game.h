@@ -7,8 +7,6 @@
 #include <vector>
 #include <list>
 
-#include <future>
-
 #include "./src/graphics/Timer.h"
 
 #include "./src/audio/Audio.h"
@@ -20,6 +18,9 @@
 #include "Board.h"
 #include "Move.h"
 #include "MoveGenerator.h"
+
+#include "./src/player/PlayerHuman.h"
+#include "./src/player/PlayerAI.h"
 
 #include "./src/ai/Search.h"
 #include "./src/ai/old/SearchOld.h"
@@ -40,7 +41,7 @@ public:
 	void run();
 	bool handleUserEvents();
 	bool handleGeneralEvents(SDL_Event &e, int x, int y);
-	void handleGameEvents(SDL_Event &e, Uint32 pMouseState, const Uint8 *pKeyboardState, int x, int y);
+	void handleGameEvents(SDL_Event &e, const Uint8 *pKeyboardState, Uint32 pMouseState, int x, int y);
 	void handlePromotionMenuEvents(SDL_Event &e, int x, int y);
 
 	void selectSquare(int startSquare);
@@ -55,15 +56,17 @@ public:
 	bool redoMove();
 	bool undoMove();
 
-	bool iaPlay();
-
 	void addHighlightSquare(int square, int type, bool persist = false);
 	void clearHighlightSquares(int typeHighlight = -1);
 
 	void playSound(Move move, int targetPiecex, bool inCheck);
 
-private:
-	Move asyncSearch();
+	void pause();
+	bool isPaused();
+	
+	bool isGameOver();
+
+	Board* getBoard();
 
 private:
 	Timer mTimer;
@@ -81,9 +84,8 @@ private:
 
 	Board* mpBoard;
 	
-	SearchV5 mSearchWhite;
-	SearchV5 mSearchBlack;
-	std::future<Move> mSearchMoveResult;
+	PlayerHuman mPlayerWhite;
+	PlayerAI mPlayerBlack;
 
 	MoveGenerator mMoveGenerator;
 	vector<Move> mLegalMoves;

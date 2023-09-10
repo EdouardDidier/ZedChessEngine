@@ -70,6 +70,12 @@
     <Filter Include="Fichiers de ressources\graphics\avatars">
       <UniqueIdentifier>{5e6cf609-52b1-42cf-a7d8-5033c8c2a897}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\Player">
+      <UniqueIdentifier>{6bda7fdb-f339-43ed-b6ae-dda7c2ea5819}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Player">
+      <UniqueIdentifier>{0e38d708-7e12-4c62-9813-8039c3b68229}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -156,6 +162,18 @@
     <ClCompile Include="src\ai\PieceSquareTables.cpp">
       <Filter>Fichiers sources\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="src\player\Player.cpp">
+      <Filter>Fichiers sources\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\player\Clock.cpp">
+      <Filter>Fichiers sources\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\player\PlayerAI.cpp">
+      <Filter>Fichiers sources\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\player\PlayerHuman.cpp">
+      <Filter>Fichiers sources\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graphics\Graphic.h">
@@ -238,6 +256,18 @@
     </ClInclude>
     <ClInclude Include="src\ai\PieceSquareTables.h">
       <Filter>Fichiers d%27en-tête\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\player\Player.h">
+      <Filter>Fichiers d%27en-tête\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\player\PlayerHuman.h">
+      <Filter>Fichiers d%27en-tête\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\player\Clock.h">
+      <Filter>Fichiers d%27en-tête\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\player\PlayerAI.h">
+      <Filter>Fichiers d%27en-tête\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
