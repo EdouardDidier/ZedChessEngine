@@ -33,7 +33,7 @@ Demonstration of 2 IAs playing each others :
 - Import files under the "src" directory as source files
 - Install and link SDL2 to the project
 - Build and run  
-_Note : By default the application starts with CLI. You can use the `graphic` command to start GUI mode. Alternatively, use `-g` or `-graphic` parameter to start GUI._
+_Note : By default the application starts with CLI. You can use the `graphic` command to start GUI mode. Alternatively, use `-g` or `-graphic` parameter to start directly in GUI mode._
 
 ## Resources 
 
