@@ -1,7 +1,7 @@
 #include "CLI.h"
 
 CLI::CLI(Board *pBoard) {
-	pBoard = pBoard;
+	mpBoard = pBoard;
 }
 
 CLI::~CLI() {
@@ -15,9 +15,6 @@ bool  CLI::init() {
 		system("pause");
 		return false;
 	}
-
-	// Load start position from Fen string
-	mpBoard->loadStartPosition(); //TODO : adapt to test any positions with dataset
 
 	cout << "ZedChessEngine" << endl;
 
