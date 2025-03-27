@@ -1,6 +1,6 @@
 # ZedChessEngine
 
-An homemade application to play chess with the implemention of a chess IA with ~1500 elo.
+A homemade application to play chess with the implementation of a chess IA with ~1500 elo.
 
 ## Presentation
 
@@ -9,9 +9,9 @@ The application supports [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edw
 The IA was tested against other chess engine and is able to win some games against ~1500 elo IA.
 This IA is based [Negamax](https://en.wikipedia.org/wiki/Negamax) framework with [Alpha-Beta pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning) and [Iterative Deepening](https://en.wikipedia.org/wiki/Iterative_deepening_depth-first_search).
 It goes through a generated [Search Tree](https://en.wikipedia.org/wiki/Search_tree) of positions reachable with each legal move.
-It then evaluate reached position to determine its best possible move.
+It then evaluates reached position to determine its best possible move.
 
-Various techniques were implemented to make the algorithm faster and more accurate : 
+Various techniques were implemented to make the algorithm faster and more accurate: 
 - Move Ordering
 - Aspiration Windows
 - Evaluation of Pieces
@@ -20,7 +20,7 @@ Various techniques were implemented to make the algorithm faster and more accura
 - [Zobrist hashing](https://en.wikipedia.org/wiki/Zobrist_hashing)
 - Multithreading
 
-Demonstration of 2 IAs playing each others :
+Demonstration of 2 IAs playing each other's:
 ![](docs/demo.gif)
 
 ## Dependencies
@@ -33,7 +33,7 @@ Demonstration of 2 IAs playing each others :
 - Import files under the "src" directory as source files
 - Install and link SDL2 to the project
 - Build and run  
-_Note : By default the application starts with CLI. You can use the `graphic` command to start GUI mode. Alternatively, use `-g` or `-graphic` parameter to start directly in GUI mode._
+_Note: By default, the application starts with CLI. You can use the `graphic` command to start GUI mode. Alternatively, use `-g` or `-graphic` parameter to start directly in GUI mode._
 
 ## Resources 
 
