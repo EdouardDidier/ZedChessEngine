@@ -25,7 +25,7 @@ Demonstration of 2 IAs playing each other's:
 
 ## Dependencies
 - [SDL2](https://www.libsdl.org/)
-- [Visual Studio](https://visualstudio.microsoft.com/fr/) was used for this project but any IDE can be used.
+- [Visual Studio](https://visualstudio.microsoft.com/fr/) was used for this project, but any IDE can be used.
 
 ## Build instructions
 
