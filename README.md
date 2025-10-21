@@ -4,9 +4,9 @@ A homemade application to play chess with the implementation of a chess IA with 
 
 ## Presentation
 
-The application supports [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) which allow to load custom position. Interactions with the engine can be performed through CLI or GUI.
+The application supports [FEN Notation](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) which allows to load custom positions. Interactions with the engine can be performed through CLI or GUI.
 
-The IA was tested against other chess engine and can win some games against ~1500 elo IA.
+The IA was tested against other chess engines and can win some games against ~1500 elo IA.
 This IA is based [Negamax](https://en.wikipedia.org/wiki/Negamax) framework with [Alpha-Beta pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning) and [Iterative Deepening](https://en.wikipedia.org/wiki/Iterative_deepening_depth-first_search).
 It goes through a generated [Search Tree](https://en.wikipedia.org/wiki/Search_tree) of positions reachable with each legal move.
 It then evaluates reached position to determine its best possible move.
